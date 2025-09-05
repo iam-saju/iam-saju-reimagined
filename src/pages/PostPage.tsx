@@ -11,273 +11,292 @@ const PostPage = () => {
       title: "Gradient Descent",
       date: "March 15, 2024",
       readTime: "8 min read",
-      content: `
-        <p class="drop-cap">Gradient descent is one of the most fundamental optimization algorithms in machine learning and deep learning. At its core, it's a method for finding the minimum of a function by iteratively moving in the direction of steepest descent.</p>
-
-        <h2>The Mathematical Foundation</h2>
-
-        <p>The basic idea behind gradient descent is surprisingly simple. Imagine you're standing on a hill and want to reach the bottom as quickly as possible. The steepest path downward at any point is given by the negative gradient of the height function at that point.</p>
-
-        <p>Mathematically, if we have a function <em>f(x)</em> that we want to minimize, gradient descent updates our current position <em>x</em> using the following rule:</p>
-
-        <div class="formula">
-          <em>x<sub>new</sub> = x<sub>old</sub> - α ∇f(x<sub>old</sub>)</em>
-        </div>
-
-        <p>Where <em>α</em> (alpha) is the learning rate, and <em>∇f(x)</em> represents the gradient of the function at point <em>x</em>.</p>
-
-        <h2>The Learning Rate Dilemma</h2>
-
-        <p>The learning rate <em>α</em> is crucial to the success of gradient descent. Too large, and we might overshoot the minimum, potentially diverging entirely. Too small, and convergence becomes painfully slow, requiring many iterations to reach the optimum.</p>
-
-        <ul>
-          <li><strong>Large learning rate:</strong> Fast initial progress but risk of overshooting</li>
-          <li><strong>Small learning rate:</strong> Stable convergence but slow progress</li>
-          <li><strong>Adaptive learning rates:</strong> Start large and decrease over time</li>
-        </ul>
-
-        <h2>Variants of Gradient Descent</h2>
-
-        <h3>Batch Gradient Descent</h3>
-        <p>The classical approach computes the gradient using the entire dataset. While this provides the most accurate gradient estimate, it can be computationally expensive for large datasets.</p>
-
-        <h3>Stochastic Gradient Descent (SGD)</h3>
-        <p>Instead of using the entire dataset, SGD computes the gradient using only a single data point at each iteration. This introduces noise but can lead to faster convergence and better generalization.</p>
-
-        <h3>Mini-batch Gradient Descent</h3>
-        <p>A compromise between batch and stochastic approaches, mini-batch gradient descent uses a small subset of the data to compute gradients. This balances computational efficiency with gradient accuracy.</p>
-
-        <h2>Challenges and Limitations</h2>
-
-        <p>Despite its widespread use, gradient descent faces several challenges:</p>
-
-        <ol>
-          <li><strong>Local minima:</strong> The algorithm can get stuck in local optima, especially in non-convex functions</li>
-          <li><strong>Saddle points:</strong> Points where the gradient is zero but are neither maxima nor minima</li>
-          <li><strong>Ill-conditioned problems:</strong> When the function has very different curvatures in different directions</li>
-        </ol>
-
-        <h2>Modern Improvements</h2>
-
-        <p>Researchers have developed numerous improvements to basic gradient descent:</p>
-
-        <ul>
-          <li><strong>Momentum:</strong> Helps accelerate convergence and overcome local minima by maintaining a "velocity" term</li>
-          <li><strong>Adam:</strong> Combines momentum with adaptive learning rates for each parameter</li>
-          <li><strong>RMSprop:</strong> Adapts the learning rate based on the magnitude of recent gradients</li>
-        </ul>
-
-        <h2>Practical Implementation</h2>
-
-        <p>When implementing gradient descent, several practical considerations emerge:</p>
-
-        <div class="code-block">
-          <pre><code>def gradient_descent(f, grad_f, x0, alpha=0.01, max_iter=1000):
+      category: "optimization",
+      content: {
+        sections: [
+          {
+            type: "paragraph",
+            content: "Gradient descent is one of the most fundamental optimization algorithms in machine learning and deep learning. At its core, it's a method for finding the minimum of a function by iteratively moving in the direction of steepest descent.",
+            isIntro: true
+          },
+          {
+            type: "heading",
+            level: 2,
+            content: "The Mathematical Foundation"
+          },
+          {
+            type: "paragraph",
+            content: "The basic idea behind gradient descent is surprisingly simple. Imagine you're standing on a hill and want to reach the bottom as quickly as possible. The steepest path downward at any point is given by the negative gradient of the height function at that point."
+          },
+          {
+            type: "paragraph",
+            content: "Mathematically, if we have a function f(x) that we want to minimize, gradient descent updates our current position x using the following rule:"
+          },
+          {
+            type: "formula",
+            content: "x_new = x_old - α ∇f(x_old)"
+          },
+          {
+            type: "paragraph",
+            content: "Where α (alpha) is the learning rate, and ∇f(x) represents the gradient of the function at point x."
+          },
+          {
+            type: "heading",
+            level: 2,
+            content: "The Learning Rate Dilemma"
+          },
+          {
+            type: "paragraph",
+            content: "The learning rate α is crucial to the success of gradient descent. Too large, and we might overshoot the minimum, potentially diverging entirely. Too small, and convergence becomes painfully slow, requiring many iterations to reach the optimum."
+          },
+          {
+            type: "list",
+            items: [
+              "Large learning rate: Fast initial progress but risk of overshooting",
+              "Small learning rate: Stable convergence but slow progress", 
+              "Adaptive learning rates: Start large and decrease over time"
+            ]
+          },
+          {
+            type: "heading",
+            level: 2,
+            content: "Variants of Gradient Descent"
+          },
+          {
+            type: "heading",
+            level: 3,
+            content: "Batch Gradient Descent"
+          },
+          {
+            type: "paragraph",
+            content: "The classical approach computes the gradient using the entire dataset. While this provides the most accurate gradient estimate, it can be computationally expensive for large datasets."
+          },
+          {
+            type: "heading",
+            level: 3,
+            content: "Stochastic Gradient Descent (SGD)"
+          },
+          {
+            type: "paragraph",
+            content: "Instead of using the entire dataset, SGD computes the gradient using only a single data point at each iteration. This introduces noise but can lead to faster convergence and better generalization."
+          },
+          {
+            type: "heading",
+            level: 3,
+            content: "Mini-batch Gradient Descent"
+          },
+          {
+            type: "paragraph",
+            content: "A compromise between batch and stochastic approaches, mini-batch gradient descent uses a small subset of the data to compute gradients. This balances computational efficiency with gradient accuracy."
+          },
+          {
+            type: "heading",
+            level: 2,
+            content: "Challenges and Limitations"
+          },
+          {
+            type: "paragraph",
+            content: "Despite its widespread use, gradient descent faces several challenges:"
+          },
+          {
+            type: "numbered-list",
+            items: [
+              "Local minima: The algorithm can get stuck in local optima, especially in non-convex functions",
+              "Saddle points: Points where the gradient is zero but are neither maxima nor minima",
+              "Ill-conditioned problems: When the function has very different curvatures in different directions"
+            ]
+          },
+          {
+            type: "heading",
+            level: 2,
+            content: "Modern Improvements"
+          },
+          {
+            type: "paragraph",
+            content: "Researchers have developed numerous improvements to basic gradient descent:"
+          },
+          {
+            type: "list",
+            items: [
+              "Momentum: Helps accelerate convergence and overcome local minima by maintaining a 'velocity' term",
+              "Adam: Combines momentum with adaptive learning rates for each parameter",
+              "RMSprop: Adapts the learning rate based on the magnitude of recent gradients"
+            ]
+          },
+          {
+            type: "heading",
+            level: 2,
+            content: "Practical Implementation"
+          },
+          {
+            type: "paragraph",
+            content: "When implementing gradient descent, several practical considerations emerge:"
+          },
+          {
+            type: "code",
+            content: `def gradient_descent(f, grad_f, x0, alpha=0.01, max_iter=1000):
     x = x0
     for i in range(max_iter):
         gradient = grad_f(x)
         x = x - alpha * gradient
         if np.linalg.norm(gradient) < 1e-6:
             break
-    return x</code></pre>
-        </div>
-
-        <h2>Conclusion</h2>
-
-        <p>Gradient descent remains a cornerstone of optimization in machine learning. While simple in concept, its effective application requires careful consideration of learning rates, convergence criteria, and the specific characteristics of the optimization landscape.</p>
-
-        <p>Understanding gradient descent deeply provides insights not just into optimization, but into the fundamental nature of learning itself. As we continue to develop more sophisticated algorithms, the principles underlying gradient descent continue to inform and inspire new approaches to machine learning optimization.</p>
-      `
+    return x`
+          },
+          {
+            type: "heading",
+            level: 2,
+            content: "Conclusion"
+          },
+          {
+            type: "paragraph",
+            content: "Gradient descent remains a cornerstone of optimization in machine learning. While simple in concept, its effective application requires careful consideration of learning rates, convergence criteria, and the specific characteristics of the optimization landscape."
+          },
+          {
+            type: "paragraph",
+            content: "Understanding gradient descent deeply provides insights not just into optimization, but into the fundamental nature of learning itself. As we continue to develop more sophisticated algorithms, the principles underlying gradient descent continue to inform and inspire new approaches to machine learning optimization."
+          }
+        ]
+      }
     }
   };
 
   // Get the post data
   const post = posts[id as keyof typeof posts] || posts["gradient-descent"];
 
+  const renderContent = (section: any, index: number) => {
+    switch (section.type) {
+      case "paragraph":
+        return (
+          <p key={index} className={`note-content mb-6 ${section.isIntro ? 'text-lg' : ''}`}>
+            {section.content}
+          </p>
+        );
+      case "heading":
+        if (section.level === 2) {
+          return (
+            <h2 key={index} className="note-title text-2xl mt-10 mb-4">
+              {section.content}
+            </h2>
+          );
+        }
+        if (section.level === 3) {
+          return (
+            <h3 key={index} className="font-academic text-xl font-semibold text-foreground mt-8 mb-3">
+              {section.content}
+            </h3>
+          );
+        }
+        break;
+      case "formula":
+        return (
+          <div key={index} className="my-8 p-6 bg-muted rounded-sm border border-border">
+            <div className="text-center font-academic text-lg italic text-foreground">
+              {section.content}
+            </div>
+          </div>
+        );
+      case "list":
+        return (
+          <ul key={index} className="my-6 space-y-2">
+            {section.items.map((item: string, itemIndex: number) => (
+              <li key={itemIndex} className="note-content flex items-start">
+                <span className="text-muted-foreground mr-3">•</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        );
+      case "numbered-list":
+        return (
+          <ol key={index} className="my-6 space-y-2">
+            {section.items.map((item: string, itemIndex: number) => (
+              <li key={itemIndex} className="note-content flex items-start">
+                <span className="text-muted-foreground mr-3 font-ui text-sm">
+                  {itemIndex + 1}.
+                </span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ol>
+        );
+      case "code":
+        return (
+          <div key={index} className="my-8 bg-muted border border-border rounded-sm overflow-x-auto">
+            <pre className="p-6 text-sm font-mono text-foreground leading-relaxed">
+              <code>{section.content}</code>
+            </pre>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="min-h-screen" style={{ 
-      background: 'linear-gradient(135deg, #fefefe 0%, #faf9f6 100%)',
-      fontFamily: 'Georgia, Charter, "Times New Roman", serif'
-    }}>
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-8 py-4">
+    <div className="min-h-screen bg-background text-foreground font-ui">
+      {/* Navigation - matching existing design system */}
+      <nav className="fixed top-0 left-0 right-0 bg-background/80 backdrop-blur-sm border-b border-border z-50">
+        <div className="max-w-4xl mx-auto px-6 py-4">
           <Link 
             to="/posts" 
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors font-light"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
           >
             <ArrowLeft size={16} />
-            Back to Posts
+            back to posts
           </Link>
         </div>
       </nav>
 
       {/* Main Content */}
       <main className="pt-20 pb-20">
-        <article 
-          className="max-w-3xl mx-auto px-8 py-12 bg-white shadow-lg"
-          style={{
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            maxWidth: '750px',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1)',
-            borderRadius: '2px'
-          }}
-        >
-          {/* Article Header */}
-          <header className="text-center mb-12 pb-8 border-b border-gray-200">
-            <h1 
-              className="text-4xl font-bold mb-4 text-gray-900"
-              style={{ 
-                fontFamily: 'Georgia, Charter, "Times New Roman", serif',
-                fontWeight: 700,
-                lineHeight: '1.2',
-                letterSpacing: '-0.02em'
-              }}
-            >
-              {post.title}
-            </h1>
-            <div className="flex items-center justify-center gap-4 text-sm text-gray-500">
-              <time>{post.date}</time>
-              <span>•</span>
-              <span>{post.readTime}</span>
+        <div className="max-w-4xl mx-auto px-6">
+          <article className="max-w-3xl">
+            {/* Article Header */}
+            <header className="mb-12">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <span className="tag-pill">
+                    {post.category}
+                  </span>
+                </div>
+                
+                <h1 className="text-4xl font-light text-foreground font-ui">
+                  {post.title}
+                </h1>
+                
+                <div className="note-meta flex items-center gap-4">
+                  <time>{post.date}</time>
+                  <span>•</span>
+                  <span>{post.readTime}</span>
+                </div>
+              </div>
+            </header>
+
+            {/* Article Content */}
+            <div className="space-y-0">
+              {post.content.sections.map((section, index) => 
+                renderContent(section, index)
+              )}
             </div>
-          </header>
 
-          {/* Article Content */}
-          <div 
-            className="prose prose-lg max-w-none"
-            style={{
-              fontSize: '18px',
-              lineHeight: '1.7',
-              color: '#2d3748'
-            }}
-            dangerouslySetInnerHTML={{ __html: post.content }}
-          />
-        </article>
+            {/* Article Footer */}
+            <footer className="mt-16 pt-8 border-t border-border">
+              <div className="flex items-center justify-between">
+                <Link 
+                  to="/posts"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  ← back to posts
+                </Link>
+                <div className="note-meta">
+                  {post.date}
+                </div>
+              </div>
+            </footer>
+          </article>
+        </div>
       </main>
-
-      {/* Custom Styles */}
-      <style jsx>{`
-        .prose h2 {
-          font-family: Georgia, Charter, "Times New Roman", serif;
-          font-size: 1.75rem;
-          font-weight: 600;
-          color: #1a202c;
-          margin-top: 2.5rem;
-          margin-bottom: 1rem;
-          line-height: 1.3;
-        }
-
-        .prose h3 {
-          font-family: Georgia, Charter, "Times New Roman", serif;
-          font-size: 1.375rem;
-          font-weight: 600;
-          color: #2d3748;
-          margin-top: 2rem;
-          margin-bottom: 0.75rem;
-          line-height: 1.4;
-        }
-
-        .prose p {
-          margin-bottom: 1.5rem;
-          text-align: justify;
-          hyphens: auto;
-        }
-
-        .prose .drop-cap::first-letter {
-          font-size: 4rem;
-          line-height: 1;
-          float: left;
-          margin-right: 0.5rem;
-          margin-top: 0.1rem;
-          font-weight: 700;
-          color: #2d3748;
-        }
-
-        .prose ul, .prose ol {
-          margin: 1.5rem 0;
-          padding-left: 2rem;
-        }
-
-        .prose li {
-          margin-bottom: 0.75rem;
-        }
-
-        .prose .formula {
-          text-align: center;
-          font-style: italic;
-          font-size: 1.1rem;
-          margin: 2rem 0;
-          padding: 1.5rem;
-          background: #f8f9fa;
-          border-left: 4px solid #e2e8f0;
-          border-radius: 4px;
-        }
-
-        .prose .code-block {
-          margin: 2rem 0;
-          background: #f7fafc;
-          border: 1px solid #e2e8f0;
-          border-radius: 6px;
-          overflow-x: auto;
-        }
-
-        .prose .code-block pre {
-          margin: 0;
-          padding: 1.5rem;
-          font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-          font-size: 0.875rem;
-          line-height: 1.6;
-          color: #2d3748;
-        }
-
-        .prose em {
-          font-style: italic;
-          color: #4a5568;
-        }
-
-        .prose strong {
-          font-weight: 600;
-          color: #1a202c;
-        }
-
-        @media (max-width: 768px) {
-          article {
-            margin: 0 1rem;
-            padding: 2rem 1.5rem;
-          }
-          
-          .prose {
-            font-size: 16px;
-          }
-          
-          .prose h1 {
-            font-size: 2.5rem;
-          }
-          
-          .prose h2 {
-            font-size: 1.5rem;
-          }
-          
-          .prose .drop-cap::first-letter {
-            font-size: 3rem;
-          }
-        }
-
-        /* Print styles */
-        @media print {
-          nav {
-            display: none;
-          }
-          
-          article {
-            box-shadow: none;
-            max-width: none;
-            margin: 0;
-          }
-        }
-      `}</style>
     </div>
   );
 };

@@ -46,6 +46,12 @@ const Navigation = () => {
               posts
             </a>
             
+            <a
+              href="/archive"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              archive
+            </a>
             
             <a 
               href="https://github.com/iam-saju" 

@@ -1,30 +1,29 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link } from "react-router-dom";
 
 const Notes = () => {
   const notes = [
     {
       id: 1,
-      title: "ml from scratch",
-      description: "fundamentals of machine learning, neural networks, and optimization techniques",
+      title: "gradient descent",
+      description: "understanding the fundamental optimization algorithm behind machine learning",
       image: "/lovable-uploads/fbf90e6e-1606-410d-a383-8b6853f25fd2.png",
-      category: "machine learning",
-      internalLink: "/ml-from-scratch"
+      category: "optimization",
+      learnLink: "https://harmless-bed-5d7.notion.site/gradient-descent-1fb97604c89d8054b6c0c62eba56a889"
     },
     {
       id: 2,
-      title: "gradient descent",
-      description: "understanding the fundamental optimization algorithm behind machine learning",
-      image: "/lovable-uploads/806e7bb0-5fc0-441b-9c05-7aaf5b382d3b.png",
-      category: "optimization",
-      internalLink: "/posts/gradient-descent"
+      title: "bitcoin server in c++",
+      description: "implementing a cryptocurrency server with utxo, merkle trees, and proof of work",
+      image: "/lovable-uploads/naka.jpeg",
+      category: "blockchain"
     },
     {
       id: 3,
-      title: "bitcoin server in c++",
-      description: "implementing a cryptocurrency server with utxo, merkle trees, and proof of work",
-      image: "/lovable-uploads/806e7bb0-5fc0-441b-9c05-7aaf5b382d3b.png",
-      category: "blockchain"
+      title: "donut.c playground",
+      description: "interactive spinning donut visualization inspired by the classic donut.c code",
+      image: "/lovable-uploads/donut.gif",
+      category: "visualization",
+      link: "https://donut-spin.lovable.app"
     }
   ];
 
@@ -33,9 +32,9 @@ const Notes = () => {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-          <Link to="/" className="text-lg font-light hover:text-primary transition-colors">
+          <a href="/" className="text-lg font-light hover:text-primary transition-colors">
             ← back
-          </Link>
+          </a>
           <h1 className="text-lg font-light">posts</h1>
           <div></div>
         </div>
@@ -56,9 +55,13 @@ const Notes = () => {
             {/* Netflix-style Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
               {notes.map((note) => {
-                const CardWrapper = note.internalLink ? Link : 'div';
-                const wrapperProps = note.internalLink
-                  ? { to: note.internalLink }
+                const CardWrapper = note.link ? 'a' : 'div';
+                const wrapperProps = note.link 
+                  ? { 
+                      href: note.link, 
+                      target: "_blank", 
+                      rel: "noopener noreferrer" 
+                    } 
                   : {};
 
                 return (
@@ -70,7 +73,9 @@ const Notes = () => {
                         <img 
                           src={note.image} 
                           alt={note.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-300 ${
+                            note.id === 2 ? 'object-top' : ''
+                          }`}
                         />
                       </div>
                       <CardHeader className="space-y-2">
@@ -78,8 +83,8 @@ const Notes = () => {
                           <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
                             {note.category}
                           </span>
-                          {note.internalLink && (
-                            <span className="text-xs text-primary">read more →</span>
+                          {note.link && (
+                            <span className="text-xs text-primary">link</span>
                           )}
                         </div>
                         <CardTitle className="text-lg font-medium group-hover:text-primary transition-colors">
@@ -91,7 +96,16 @@ const Notes = () => {
                       </CardHeader>
                       <CardContent className="pt-0">
                         <div className="text-xs text-muted-foreground">
-                          {note.internalLink ? "explore →" : "coming soon..."}
+                          {note.link ? "explore →" : note.learnLink ? (
+                            <a 
+                              href={note.learnLink} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-primary hover:text-primary/80 transition-colors"
+                            >
+                              learn →
+                            </a>
+                          ) : "coming soon..."}
                         </div>
                       </CardContent>
                     </Card>

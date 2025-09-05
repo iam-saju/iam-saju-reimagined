@@ -155,6 +155,46 @@
     @apply text-blue-600;
   }
   
+  /* AI Archive Masonry Grid */
+  .masonry-grid {
+    @apply grid gap-4;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+  
+  .masonry-item {
+    @apply break-inside-avoid;
+  }
+  
+  @media (min-width: 1200px) {
+    .masonry-grid {
+      grid-template-columns: repeat(5, 1fr);
+    }
+  }
+  
+  @media (max-width: 1200px) and (min-width: 768px) {
+    .masonry-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) and (min-width: 640px) {
+    .masonry-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  @media (max-width: 640px) and (min-width: 480px) {
+    .masonry-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .masonry-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
   /* Sidebar Table of Contents */
   .toc-sidebar {
     @apply bg-gray-50 border-r border-gray-200;

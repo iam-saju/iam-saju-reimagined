@@ -1,43 +1,43 @@
 const About = () => {
   return (
-    <section id="about" className="py-20">
+    <section id="more" className="py-20">
       <div className="max-w-4xl mx-auto px-6">
         <div className="space-y-8">
           <h2 className="text-2xl font-medium text-foreground">
-            about
+            more about me
           </h2>
           
           <div className="space-y-6 text-base leading-relaxed text-foreground max-w-2xl">
             <p>
-              i'm a software engineer passionate about building clean, efficient, and user-focused applications. 
-              my journey started with computer science fundamentals and has evolved into full-stack development 
-              with a particular interest in modern web technologies.
+              i'm the kind of person who reads research papers for fun and then tries to implement them 
+              from scratch just to see if i can. sometimes it works, sometimes it doesn't, but i always 
+              learn something new.
             </p>
             
             <p>
-              currently, i work as a full-stack developer where i build end-to-end solutions using React, 
-              Node.js, and various databases. i enjoy the entire product development lifecycle - from 
-              initial concept and architecture design to deployment and maintenance.
+              my approach to learning is hands-on and bottom-up. instead of using libraries, i prefer 
+              understanding the underlying mechanics first. that's how i ended up writing http servers 
+              from scratch, implementing blockchain protocols, and building computer vision pipelines 
+              without relying on high-level abstractions.
             </p>
             
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-foreground">technical interests</h3>
+              <h3 className="text-lg font-medium text-foreground">current focus</h3>
               <ul className="space-y-2 text-muted-foreground">
-                <li>• Full-stack web development (React, Node.js, TypeScript)</li>
-                <li>• Modern JavaScript frameworks and libraries</li>
-                <li>• Database design and optimization</li>
-                <li>• API design and microservices architecture</li>
-                <li>• DevOps and deployment automation</li>
-                <li>• Machine learning and AI applications</li>
+                <li>• distributed systems and infrastructure</li>
+                <li>• gpu computing and cluster management</li>
+                <li>• machine learning model optimization</li>
+                <li>• blockchain and cryptocurrency protocols</li>
+                <li>• low-level system programming</li>
               </ul>
             </div>
             
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-foreground">when i'm not coding</h3>
+              <h3 className="text-lg font-medium text-foreground">philosophy</h3>
               <p className="text-muted-foreground">
-                i enjoy exploring new technologies, contributing to open source projects, writing about 
-                development experiences, and staying up-to-date with the latest trends in software engineering. 
-                i also love discussing product strategy and the intersection of technology and user experience.
+                i believe the best way to understand technology is to build it yourself. every abstraction 
+                layer you peel back reveals new insights about how things actually work. plus, manchester 
+                united is the greatest football club in the world (fight me).
               </p>
             </div>
           </div>

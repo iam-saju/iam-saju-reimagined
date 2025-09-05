@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 const Navigation = () => {
-  const [activeSection, setActiveSection] = useState('home');
+  const [activeSection, setActiveSection] = useState('more');
 
   const scrollToSection = (sectionId: string) => {
     setActiveSection(sectionId);
@@ -16,7 +16,7 @@ const Navigation = () => {
       <div className="max-w-4xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <button 
-            onClick={() => scrollToSection('home')}
+            onClick={() => scrollToSection('more')}
             className="text-lg font-medium text-foreground hover:text-primary transition-colors"
           >
             saju
@@ -24,10 +24,7 @@ const Navigation = () => {
           
           <div className="flex items-center gap-6 text-sm">
             {[
-              { id: 'home', label: 'home' },
-              { id: 'about', label: 'about' },
-              { id: 'projects', label: 'projects' },
-              { id: 'experience', label: 'experience' },
+              { id: 'more', label: 'about' },
             ].map((item) => (
               <button
                 key={item.id}
@@ -42,6 +39,13 @@ const Navigation = () => {
               </button>
             ))}
             
+            <a
+              href="/notes"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              notes
+            </a>
+            
             <div className="flex items-center gap-4 ml-4">
               <a 
                 href="https://github.com/iam-saju" 
@@ -49,15 +53,7 @@ const Navigation = () => {
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
-                GitHub
-              </a>
-              <a 
-                href="https://x.com/saju" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                X
+                github
               </a>
             </div>
           </div>

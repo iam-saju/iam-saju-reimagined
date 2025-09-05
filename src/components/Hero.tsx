@@ -1,41 +1,35 @@
 const Hero = () => {
   return (
-    <section id="home" className="min-h-screen flex items-center justify-start">
+    <section id="about" className="min-h-screen flex items-center justify-start relative">
       <div className="max-w-4xl mx-auto px-6 py-20">
         <div className="space-y-8">
           <h1 className="text-4xl font-light text-foreground">
-            hi.
+            yo.
           </h1>
           
           <div className="space-y-6 text-lg leading-relaxed text-foreground max-w-2xl">
             <p>
-              i'm saju! i'm glad you're here :)
+              i'm saju. welcome, i guess :)
             </p>
             
             <p>
-              i'm currently an undergrad in <strong>ai & data science</strong>. i've worked on everything from 
-              <strong>blockchain implementations in c++</strong> (inspired by satoshi's bitcoin paper), to building my own 
-              <strong>gpu marketplace & cluster vision</strong>.
+              i'm an undergrad in <strong>ai & data science</strong>. i spend my time building things that probably shouldn't exist but do anyway. some were big ideas — like a <strong>gpu marketplace</strong> that might morph into a gpu cluster center. others were just me having fun, like writing a <strong>blockchain in c++</strong> with utxo, merkle trees, pow, and ecdsa just because i wanted to see if i could.
             </p>
             
             <p>
-              i love exploring how systems work at a low level — whether that's coding minimal 
-              <strong>http servers from scratch in python</strong>, engineering <strong>ml workflows</strong>, or experimenting with 
-              <strong>computer vision</strong> using opencv, mediapipe, and fastapi.
+              i like understanding things at the level where you can break them — <strong>raw-socket http servers in python</strong>, <strong>ml workflows from scratch</strong>, and weird <strong>computer vision experiments</strong> using opencv and fastapi.
             </p>
             
             <p>
-              i've built <strong>qubit</strong>, a telegram wrapper that turns telegram into a cloud storage service, 
-              and i'm always tinkering with side projects — from vue.js dashboards to distributed file upload systems.
+              i built <strong>qubit</strong>, which turns telegram into a makeshift cloud storage system with chunked uploads and multi-threaded bots. also built stuff like vue.js dashboards, file assembly pipelines, and random utilities i'll probably never use again but was fun to code.
             </p>
             
             <p>
-              i've moved from pure academics into <strong>engineering + infra</strong>, but i still love digging into 
-              first principles (and breaking machines for fun).
+              outside of code, i'm a die-hard <strong>manchester united</strong> fan.
             </p>
             
             <p className="text-muted-foreground">
-              <a 
+              i tweet here: <a 
                 href="https://x.com/saju0nx" 
                 target="_blank" 
                 rel="noopener noreferrer"
@@ -44,10 +38,21 @@ const Hero = () => {
                 @saju0nx
               </a>
             </p>
-            
-            <p className="text-sm text-muted-foreground italic">
-              <strong>note:</strong> this site's
-            </p>
+          </div>
+          
+          {/* ASCII Donut Art */}
+          <div className="absolute top-20 right-10 opacity-20 text-xs font-mono text-muted-foreground hidden md:block">
+            <pre className="animate-spin" style={{animationDuration: '8s'}}>
+{`    ∩───∩    
+   ( ●   ● )   
+  /    ∪    \\  
+ /  ┌─────┐  \\ 
+(   │ ● ● │   )
+ \\  └─────┘  / 
+  \\    ∪    /  
+   ( ●   ● )   
+    ∩───∩    `}
+            </pre>
           </div>
         </div>
       </div>

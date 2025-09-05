@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 const Notes = () => {
   const notes = [
@@ -12,6 +13,14 @@ const Notes = () => {
     },
     {
       id: 2,
+      title: "gradient descent",
+      description: "understanding the fundamental optimization algorithm behind machine learning",
+      image: "/lovable-uploads/806e7bb0-5fc0-441b-9c05-7aaf5b382d3b.png",
+      category: "optimization",
+      internalLink: "/posts/gradient-descent"
+    },
+    {
+      id: 3,
       title: "bitcoin server in c++",
       description: "implementing a cryptocurrency server with utxo, merkle trees, and proof of work",
       image: "/lovable-uploads/806e7bb0-5fc0-441b-9c05-7aaf5b382d3b.png",
@@ -24,9 +33,9 @@ const Notes = () => {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-          <a href="/" className="text-lg font-light hover:text-primary transition-colors">
+          <Link to="/" className="text-lg font-light hover:text-primary transition-colors">
             ← back
-          </a>
+          </Link>
           <h1 className="text-lg font-light">posts</h1>
           <div></div>
         </div>
@@ -47,9 +56,9 @@ const Notes = () => {
             {/* Netflix-style Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
               {notes.map((note) => {
-                const CardWrapper = note.internalLink ? 'a' : 'div';
+                const CardWrapper = note.internalLink ? Link : 'div';
                 const wrapperProps = note.internalLink
-                  ? { href: note.internalLink }
+                  ? { to: note.internalLink }
                   : {};
 
                 return (

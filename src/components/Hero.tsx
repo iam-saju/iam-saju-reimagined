@@ -9,44 +9,44 @@ const Hero = () => {
           
           <div className="space-y-6 text-lg leading-relaxed text-foreground max-w-2xl">
             <p>
-              i am saju! i'm glad you're here :)
+              i'm saju! i'm glad you're here :)
             </p>
             
             <p>
-              i studied <strong>computer science</strong> and <strong>software engineering</strong> in my 
-              undergrad. i've researched <strong>machine learning</strong> for my senior (theoretical) research, and 
-              currently working as a <strong>full-stack developer</strong>, building things from scratch.
+              i'm currently an undergrad in <strong>ai & data science</strong>. i've worked on everything from 
+              <strong>blockchain implementations in c++</strong> (inspired by satoshi's bitcoin paper), to building my own 
+              <strong>gpu marketplace & cluster vision</strong>.
             </p>
             
             <p>
-              i love <strong>building products</strong>, <strong>problem-solving</strong>, and coding things up from scratch, like 
-              React applications, Node.js backends, amongst other things.
+              i love exploring how systems work at a low level — whether that's coding minimal 
+              <strong>http servers from scratch in python</strong>, engineering <strong>ml workflows</strong>, or experimenting with 
+              <strong>computer vision</strong> using opencv, mediapipe, and fastapi.
             </p>
             
             <p>
-              i've also built several personal projects from scratch, implemented modern web architectures, 
-              written my own authentication systems, and spun up everything from small portfolio sites 
-              to full-scale applications.
+              i've built <strong>qubit</strong>, a telegram wrapper that turns telegram into a cloud storage service, 
+              and i'm always tinkering with side projects — from vue.js dashboards to distributed file upload systems.
             </p>
             
             <p>
-              i have pivoted from academic research to product development and i love 
-              building user-facing applications and solving real-world problems.
+              i've moved from pure academics into <strong>engineering + infra</strong>, but i still love digging into 
+              first principles (and breaking machines for fun).
             </p>
             
             <p className="text-muted-foreground">
-              i like to tweet: <a 
-                href="https://x.com/saju" 
+              <a 
+                href="https://x.com/saju0nx" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
               >
-                @saju
+                @saju0nx
               </a>
             </p>
             
             <p className="text-sm text-muted-foreground italic">
-              <strong>Note:</strong> this site is a work in progress :)
+              <strong>note:</strong> this site's
             </p>
           </div>
         </div>

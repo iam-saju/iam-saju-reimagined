@@ -25,7 +25,7 @@ const Hero = () => {
             </p>
             
             <p>
-              outside of code, i'm a die-hard <strong>manchester united</strong> fan.
+              outside of code, i'm a die-hard <strong className="text-red-600">manchester united</strong> fan.
             </p>
             
             <p className="text-muted-foreground">
@@ -40,20 +40,6 @@ const Hero = () => {
             </p>
           </div>
           
-          {/* ASCII Donut Art */}
-          <div className="absolute top-20 right-10 opacity-20 text-xs font-mono text-muted-foreground hidden md:block">
-            <pre className="animate-spin" style={{animationDuration: '8s'}}>
-{`    ∩───∩    
-   ( ●   ● )   
-  /    ∪    \\  
- /  ┌─────┐  \\ 
-(   │ ● ● │   )
- \\  └─────┘  / 
-  \\    ∪    /  
-   ( ●   ● )   
-    ∩───∩    `}
-            </pre>
-          </div>
         </div>
       </div>
     </section>

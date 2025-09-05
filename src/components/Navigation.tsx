@@ -40,22 +40,21 @@ const Navigation = () => {
             ))}
             
             <a
-              href="/notes"
+              href="/posts"
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
-              notes
+              posts
             </a>
             
-            <div className="flex items-center gap-4 ml-4">
-              <a 
-                href="https://github.com/iam-saju" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                github
-              </a>
-            </div>
+            
+            <a 
+              href="https://github.com/iam-saju" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              github
+            </a>
           </div>
         </div>
       </div>

@@ -106,6 +106,13 @@
     outline-offset: 2px;
     border-radius: calc(var(--radius) - 2px);
   }
+  
+  /* Donut animation styles */
+  .pixelated {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+  }
 }
 
 /* Academic Typography Classes */

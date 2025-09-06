@@ -1,7 +1,47 @@
+import { useState, useEffect } from 'react';
+import { DonutAnimation, DonutSettings } from './DonutAnimation';
+import Terminal from './Terminal';
+import { useKeyboard } from '../hooks/useKeyboard';
+
 const Hero = () => {
+  const [terminalVisible, setTerminalVisible] = useState(false);
+  const [fps, setFps] = useState(60);
+  const [donutSettings, setDonutSettings] = useState<DonutSettings>({
+    size: 'medium',
+    speed: 1,
+    opacity: 30,
+    color: '#4a9eff',
+    paused: false
+  });
+  
+  const { isShiftTPressed } = useKeyboard();
+  
+  useEffect(() => {
+    if (isShiftTPressed) {
+      setTerminalVisible(prev => !prev);
+    }
+  }, [isShiftTPressed]);
+  
+  const handleSettingsChange = (newSettings: Partial<DonutSettings>) => {
+    setDonutSettings(prev => ({ ...prev, ...newSettings }));
+  };
+  
+  const closeTerminal = () => {
+    setTerminalVisible(false);
+  };
+
   return (
-    <section id="about" className="min-h-screen flex items-center justify-start relative">
-      <div className="max-w-4xl mx-auto px-6 py-20">
+    <section id="about" className="min-h-screen flex items-center justify-start relative overflow-hidden">
+      {/* Donut Animation Background */}
+      <DonutAnimation 
+        settings={donutSettings}
+        isVisible={terminalVisible}
+      />
+      
+      {/* Hero Content */}
+      <div className={`max-w-4xl mx-auto px-6 py-20 relative z-10 transition-opacity duration-300 ${
+        terminalVisible ? 'opacity-0' : 'opacity-100'
+      }`}>
         <div className="space-y-8">
           <h1 className="text-4xl font-light text-foreground">
             yo.
@@ -38,10 +78,22 @@ const Hero = () => {
                 @saju0nx
               </a>
             </p>
+            
+            <p className="text-xs text-muted-foreground italic">
+              Press Shift+T to enter the donut terminal
+            </p>
           </div>
-          
         </div>
       </div>
+      
+      {/* Terminal */}
+      <Terminal 
+        isVisible={terminalVisible}
+        onClose={closeTerminal}
+        donutSettings={donutSettings}
+        onSettingsChange={handleSettingsChange}
+        fps={fps}
+      />
     </section>
   );
 };

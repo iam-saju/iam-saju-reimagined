@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 
-const Footer = () => {
+interface FooterProps {
+  isDarkMode?: boolean;
+}
+
+const Footer = ({ isDarkMode = false }: FooterProps) => {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -29,12 +33,12 @@ const Footer = () => {
   return (
     <footer className="py-8">
       <div className="max-w-4xl mx-auto px-6">
-        <div className="pt-8 border-t border-border">
+        <div className={`pt-8 border-t ${isDarkMode ? 'border-gray-700' : 'border-border'}`}>
           <div className="flex justify-between items-center">
-            <p className="text-xs text-muted-foreground">
+            <p className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-muted-foreground'}`}>
               ©xaju. built with lots of ☕.
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-muted-foreground'}`}>
               {getCurrentDateTime()}
             </p>
           </div>

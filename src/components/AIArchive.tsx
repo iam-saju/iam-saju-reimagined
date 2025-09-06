@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTheme } from '@/hooks/useTheme';
 import { X, Download, ExternalLink } from "lucide-react";
 
 interface AIImage {
@@ -12,6 +13,7 @@ interface AIImage {
 const AIArchive = () => {
   const [selectedImage, setSelectedImage] = useState<AIImage | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { isDarkMode, toggleTheme } = useTheme();
 
   // Sample AI images data
   const aiImages: AIImage[] = [
@@ -84,15 +86,46 @@ const AIArchive = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans">
+    <div className={`min-h-screen font-sans transition-colors duration-300 ${
+      isDarkMode ? 'bg-black text-white' : 'bg-background text-foreground'
+    }`}>
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
+      <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b transition-colors duration-300 ${
+        isDarkMode 
+          ? 'bg-black/90 border-gray-700' 
+          : 'bg-background/80 border-border'
+      }`}>
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-          <a href="/" className="text-lg font-light hover:text-primary transition-colors">
+          <a 
+            href="/" 
+            className={`text-lg font-light transition-colors ${
+              isDarkMode ? 'text-white hover:text-gray-300' : 'hover:text-primary'
+            }`}
+          >
             ← back
           </a>
-          <h1 className="text-lg font-light">archive</h1>
-          <div></div>
+          <h1 className={`text-lg font-light ${isDarkMode ? 'text-white' : ''}`}>archive</h1>
+          
+          {/* Theme Toggle Button */}
+          <button
+            onClick={toggleTheme}
+            className={`p-2 rounded-lg transition-all duration-200 ${
+              isDarkMode 
+                ? 'text-gray-300 hover:text-white hover:bg-gray-800' 
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+            }`}
+            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            {isDarkMode ? (
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+              </svg>
+            )}
+          </button>
         </div>
       </header>
 
@@ -101,8 +134,8 @@ const AIArchive = () => {
         <div className="max-w-6xl mx-auto px-6">
           <div className="space-y-8">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-light">archive</h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
+              <h2 className={`text-3xl font-light ${isDarkMode ? 'text-white' : ''}`}>archive</h2>
+              <p className={`max-w-2xl mx-auto ${isDarkMode ? 'text-gray-300' : 'text-muted-foreground'}`}>
                 where Leonardo codes, Michelangelo sculpts in zeros, and my snapshots come together in an archive of timeless records
               </p>
             </div>
@@ -115,7 +148,11 @@ const AIArchive = () => {
                   className="masonry-item group cursor-pointer"
                   onClick={() => handleImageClick(image)}
                 >
-                  <div className="relative overflow-hidden rounded-sm bg-card/50 backdrop-blur-sm border-border/50 hover:shadow-lg transition-all duration-300">
+                  <div className={`relative overflow-hidden rounded-sm backdrop-blur-sm hover:shadow-lg transition-all duration-300 ${
+                    isDarkMode 
+                      ? 'bg-gray-900/50 border-gray-700' 
+                      : 'bg-card/50 border-border/50'
+                  }`}>
                     <img
                       src={image.url}
                       alt={image.title}
@@ -140,8 +177,12 @@ const AIArchive = () => {
               <div className="masonry-grid">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="masonry-item">
-                    <div className="bg-muted/50 rounded-sm animate-pulse">
-                      <div className="aspect-square bg-muted/30"></div>
+                    <div className={`rounded-sm animate-pulse ${
+                      isDarkMode ? 'bg-gray-800/50' : 'bg-muted/50'
+                    }`}>
+                      <div className={`aspect-square ${
+                        isDarkMode ? 'bg-gray-700/30' : 'bg-muted/30'
+                      }`}></div>
                     </div>
                   </div>
                 ))}
@@ -150,7 +191,7 @@ const AIArchive = () => {
 
             {/* Footer */}
             <div className="text-center pt-12">
-              <p className="text-sm text-muted-foreground italic">
+              <p className={`text-sm italic ${isDarkMode ? 'text-gray-400' : 'text-muted-foreground'}`}>
                 More AI-generated content coming as I explore new models and techniques...
               </p>
             </div>
@@ -165,13 +206,19 @@ const AIArchive = () => {
           onClick={handleCloseModal}
         >
           <div 
-            className="relative max-w-4xl max-h-[90vh] bg-card rounded-sm shadow-lg"
+            className={`relative max-w-4xl max-h-[90vh] rounded-sm shadow-lg ${
+              isDarkMode ? 'bg-gray-900' : 'bg-card'
+            }`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
             <button
               onClick={handleCloseModal}
-              className="absolute top-4 right-4 z-10 p-2 bg-background/80 backdrop-blur-sm rounded-full hover:bg-background transition-colors"
+              className={`absolute top-4 right-4 z-10 p-2 backdrop-blur-sm rounded-full transition-colors ${
+                isDarkMode 
+                  ? 'bg-gray-800/80 hover:bg-gray-800 text-white' 
+                  : 'bg-background/80 hover:bg-background'
+              }`}
             >
               <X className="w-4 h-4" />
             </button>
@@ -188,8 +235,8 @@ const AIArchive = () => {
             {/* Metadata */}
             <div className="p-6 pt-0 space-y-4">
               <div>
-                <h3 className="text-xl font-medium mb-2">{selectedImage.title}</h3>
-                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                <h3 className={`text-xl font-medium mb-2 ${isDarkMode ? 'text-white' : ''}`}>{selectedImage.title}</h3>
+                <div className={`flex flex-wrap gap-4 text-sm ${isDarkMode ? 'text-gray-300' : 'text-muted-foreground'}`}>
                   <span>{selectedImage.timestamp}</span>
                 </div>
               </div>
@@ -205,7 +252,11 @@ const AIArchive = () => {
                 </button>
                 <button
                   onClick={() => window.open(selectedImage.url, '_blank')}
-                  className="flex items-center gap-2 px-4 py-2 border border-border rounded-sm hover:bg-muted transition-colors text-sm"
+                  className={`flex items-center gap-2 px-4 py-2 border rounded-sm transition-colors text-sm ${
+                    isDarkMode 
+                      ? 'border-gray-700 hover:bg-gray-800 text-white' 
+                      : 'border-border hover:bg-muted'
+                  }`}
                 >
                   <ExternalLink className="w-4 h-4" />
                   View Full Size

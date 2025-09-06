@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useGlobalDonut } from '../hooks/useGlobalDonut';
 
 interface DonutSettings {
   size: 'small' | 'medium' | 'large';
@@ -14,12 +15,10 @@ interface DonutAnimationProps {
 }
 
 const DonutAnimation = ({ settings, isVisible }: DonutAnimationProps) => {
+  const { globalState } = useGlobalDonut();
   const animationRef = useRef<number>();
   const [asciiOutput, setAsciiOutput] = useState<string>('');
   const [fps, setFps] = useState(60);
-  
-  const A = useRef(0);
-  const B = useRef(0);
   
   const frameTimeRef = useRef<number[]>([]);
   
@@ -62,14 +61,14 @@ const DonutAnimation = ({ settings, isVisible }: DonutAnimationProps) => {
         for (let i = 0; i < 6.28; i += 0.01) { // Reduced from 0.02 to 0.01
           const c = Math.sin(i);
           const d = Math.cos(j);
-          const e = Math.sin(A.current);
+          const e = Math.sin(globalState.A);
           const f = Math.sin(j);
-          const g = Math.cos(A.current);
+          const g = Math.cos(globalState.A);
           const h = d + 2;
           const D = 1 / (c * h * e + f * g + 5);
           const l = Math.cos(i);
-          const m = Math.cos(B.current);
-          const n = Math.sin(B.current);
+          const m = Math.cos(globalState.B);
+          const n = Math.sin(globalState.B);
           const t = c * h * g - f * e;
           
           const x = Math.floor(size.width / 2 + (size.width / 2.5) * D * (l * h * m - t * n));
@@ -88,9 +87,8 @@ const DonutAnimation = ({ settings, isVisible }: DonutAnimationProps) => {
       const asciiString = output.map(row => row.join('')).join('\n');
       setAsciiOutput(asciiString);
       
-      // Update rotation angles
-      A.current += 0.04 * settings.speed;
-      B.current += 0.02 * settings.speed;
+      // Update rotation angles using global state
+      globalState.updateRotation(0.04 * settings.speed, 0.02 * settings.speed);
       
       animationRef.current = requestAnimationFrame(render);
     };
@@ -102,7 +100,7 @@ const DonutAnimation = ({ settings, isVisible }: DonutAnimationProps) => {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [settings]);
+  }, [settings, globalState]);
   
   const fontSize = {
     small: 'text-sm',

@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donut Terminal - ASCII Spinning Donut Controller</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+            background: #000;
+            color: #00ff00;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .normal-view {
+            background: #fefefe;
+            color: #333;
+            font-family: Georgia, serif;
+            padding: 2rem;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .normal-view h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .normal-view p {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            color: #555;
+        }
+
+        .normal-view .toggle-hint {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(51, 51, 51, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .terminal-container {
+            display: none;
+            height: 100vh;
+            flex-direction: column;
+            background: #000;
+            color: #00ff00;
+        }
+
+        .terminal-container.active {
+            display: flex;
+        }
+
+        .donut-display {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 12px;
+            line-height: 1;
+            white-space: pre;
+            letter-spacing: 0;
+        }
+
+        .command-area {
+            padding: 1rem;
+            border-top: 1px solid #333;
+        }
+
+        .command-history {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            font-size: 14px;
+        }
+
+        .command-line {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .prompt {
+            color: #00ff00;
+            margin-right: 0.5rem;
+        }
+
+        .command-input {
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            flex: 1;
+        }
+
+        .status-line {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .cursor {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .matrix-mode {
+            color: #00ff41;
+        }
+
+        .rainbow-mode {
+            animation: rainbow 2s linear infinite;
+        }
+
+        @keyframes rainbow {
+            0% { color: #ff0000; }
+            16% { color: #ff8000; }
+            33% { color: #ffff00; }
+            50% { color: #00ff00; }
+            66% { color: #0080ff; }
+            83% { color: #8000ff; }
+            100% { color: #ff0000; }
+        }
+    </style>
+</head>
+<body>
+    <div id="normalView" class="normal-view">
+        <h1>Donut Terminal</h1>
+        <p>Welcome to the ASCII Spinning Donut Controller, inspired by the classic donut.c program.</p>
+        <p>This terminal interface allows you to control and customize the famous spinning ASCII donut with various parameters and effects.</p>
+        
+        <h2>Features</h2>
+        <ul>
+            <li>Real-time ASCII donut animation using original donut.c mathematics</li>
+            <li>Terminal-style command interface</li>
+            <li>Customizable rotation speed, size, and characters</li>
+            <li>Multiple rotation axes and effects</li>
+            <li>Easter eggs and special modes</li>
+        </ul>
+
+        <h2>Quick Start</h2>
+        <p>Press <strong>Shift+T</strong> to enter terminal mode and start controlling the donut.</p>
+        <p>Type <code>help</code> to see all available commands.</p>
+
+        <div class="toggle-hint">
+            Press <strong>Shift+T</strong> to enter terminal mode
+        </div>
+    </div>
+
+    <div id="terminalContainer" class="terminal-container">
+        <div class="status-line" id="statusLine">
+            Speed: 5 | Size: M | Axis: XY | FPS: 60 | Status: Stopped
+        </div>
+        
+        <div class="donut-display" id="donutDisplay"></div>
+        
+        <div class="command-area">
+            <div class="command-history" id="commandHistory"></div>
+            <div class="command-line">
+                <span class="prompt">donut@terminal:~$</span>
+                <input type="text" class="command-input" id="commandInput" autocomplete="off">
+                <span class="cursor">_</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class DonutController {
+            constructor() {
+                this.isTerminalMode = false;
+                this.isRunning = false;
+                this.speed = 5;
+                this.size = 'M';
+                this.chars = '.,-~:;=!*#$@';
+                this.axis = 'XY';
+                this.fps = 60;
+                this.colors = false;
+                this.reverse = false;
+                this.A = 0;
+                this.B = 0;
+                this.animationId = null;
+                this.commandHistory = [];
+                this.historyIndex = -1;
+                this.konamiCode = [];
+                this.konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
+                
+                this.initializeElements();
+                this.setupEventListeners();
+                this.addToHistory('Welcome to Donut Terminal! Type "help" for commands.');
+            }
+
+            initializeElements() {
+                this.normalView = document.getElementById('normalView');
+                this.terminalContainer = document.getElementById('terminalContainer');
+                this.donutDisplay = document.getElementById('donutDisplay');
+                this.commandHistory = document.getElementById('commandHistory');
+                this.commandInput = document.getElementById('commandInput');
+                this.statusLine = document.getElementById('statusLine');
+            }
+
+            setupEventListeners() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.shiftKey && e.key === 'T') {
+                        this.toggleTerminalMode();
+                    } else if (this.isTerminalMode) {
+                        this.handleTerminalKeydown(e);
+                    }
+                });
+
+                this.commandInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        this.executeCommand(this.commandInput.value.trim());
+                        this.commandInput.value = '';
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        this.navigateHistory(-1);
+                    } else if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        this.navigateHistory(1);
+                    } else if (e.key === 'Tab') {
+                        e.preventDefault();
+                        this.autoComplete();
+                    }
+                });
+            }
+
+            handleTerminalKeydown(e) {
+                // Konami code detection
+                this.konamiCode.push(e.code);
+                if (this.konamiCode.length > this.konamiSequence.length) {
+                    this.konamiCode.shift();
+                }
+                
+                if (this.konamiCode.join(',') === this.konamiSequence.join(',')) {
+                    this.executeCommand('konami');
+                    this.konamiCode = [];
+                }
+
+                if (e.ctrlKey && e.key === 'c') {
+                    this.executeCommand('stop');
+                } else if (e.ctrlKey && e.key === 'l') {
+                    this.executeCommand('clear');
+                }
+            }
+
+            toggleTerminalMode() {
+                this.isTerminalMode = !this.isTerminalMode;
+                
+                if (this.isTerminalMode) {
+                    this.normalView.style.display = 'none';
+                    this.terminalContainer.classList.add('active');
+                    this.commandInput.focus();
+                } else {
+                    this.normalView.style.display = 'block';
+                    this.terminalContainer.classList.remove('active');
+                    this.executeCommand('stop');
+                }
+            }
+
+            executeCommand(command) {
+                if (!command) return;
+                
+                this.addToHistory(`donut@terminal:~$ ${command}`);
+                const parts = command.toLowerCase().split(' ');
+                const cmd = parts[0];
+                const args = parts.slice(1);
+
+                switch (cmd) {
+                    case 'start':
+                        this.startDonut();
+                        break;
+                    case 'stop':
+                        this.stopDonut();
+                        break;
+                    case 'speed':
+                        this.setSpeed(args[0]);
+                        break;
+                    case 'size':
+                        this.setSize(args[0]);
+                        break;
+                    case 'chars':
+                        this.setChars(args.join(' '));
+                        break;
+                    case 'axis':
+                        this.setAxis(args[0]);
+                        break;
+                    case 'reverse':
+                        this.toggleReverse();
+                        break;
+                    case 'reset':
+                        this.reset();
+                        break;
+                    case 'fps':
+                        this.setFps(args[0]);
+                        break;
+                    case 'colors':
+                        this.toggleColors(args[0]);
+                        break;
+                    case 'clear':
+                        this.clearHistory();
+                        break;
+                    case 'help':
+                        this.showHelp();
+                        break;
+                    case 'man':
+                        this.showManual();
+                        break;
+                    case 'exit':
+                        this.toggleTerminalMode();
+                        break;
+                    case 'zen':
+                        this.addToHistory('Already in zen mode! Use "exit" to return.');
+                        break;
+                    case 'konami':
+                        this.activateRainbow();
+                        break;
+                    case 'matrix':
+                        this.activateMatrix();
+                        break;
+                    case 'turbo':
+                        this.activateTurbo();
+                        break;
+                    case 'tiny':
+                        this.activateTiny();
+                        break;
+                    default:
+                        this.addToHistory(`Command not found: ${cmd}. Type "help" for available commands.`);
+                }
+                
+                this.updateStatus();
+            }
+
+            startDonut() {
+                if (this.isRunning) {
+                    this.addToHistory('Donut is already running.');
+                    return;
+                }
+                
+                this.isRunning = true;
+                this.addToHistory('Starting donut animation...');
+                this.animate();
+            }
+
+            stopDonut() {
+                if (!this.isRunning) {
+                    this.addToHistory('Donut is not running.');
+                    return;
+                }
+                
+                this.isRunning = false;
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                }
+                this.addToHistory('Donut animation stopped.');
+                this.donutDisplay.textContent = '';
+            }
+
+            animate() {
+                if (!this.isRunning) return;
+
+                const output = this.renderDonut();
+                this.donutDisplay.textContent = output;
+                
+                this.A += 0.04 * (this.speed / 5) * (this.reverse ? -1 : 1);
+                this.B += 0.02 * (this.speed / 5) * (this.reverse ? -1 : 1);
+                
+                setTimeout(() => {
+                    this.animationId = requestAnimationFrame(() => this.animate());
+                }, 1000 / this.fps);
+            }
+
+            renderDonut() {
+                const width = this.size === 'S' ? 60 : this.size === 'M' ? 80 : 100;
+                const height = this.size === 'S' ? 20 : this.size === 'M' ? 24 : 30;
+                
+                const output = [];
+                const zbuffer = [];
+                
+                for (let i = 0; i < width * height; i++) {
+                    output[i] = ' ';
+                    zbuffer[i] = 0;
+                }
+
+                for (let j = 0; j < 6.28; j += 0.07) {
+                    for (let i = 0; i < 6.28; i += 0.02) {
+                        const c = Math.sin(i);
+                        const d = Math.cos(j);
+                        const e = Math.sin(this.A);
+                        const f = Math.sin(j);
+                        const g = Math.cos(this.A);
+                        const h = d + 2;
+                        const D = 1 / (c * h * e + f * g + 5);
+                        const l = Math.cos(i);
+                        const m = Math.cos(this.B);
+                        const n = Math.sin(this.B);
+                        const t = c * h * g - f * e;
+                        
+                        const x = Math.floor(width / 2 + (width / 4) * D * (l * h * m - t * n));
+                        const y = Math.floor(height / 2 + (height / 4) * D * (l * h * n + t * m));
+                        const o = x + width * y;
+                        const N = Math.floor(8 * ((f * e - c * d * g) * m - c * d * e - f * g - l * d * n));
+                        
+                        if (y < height && y >= 0 && x >= 0 && x < width && D > zbuffer[o]) {
+                            zbuffer[o] = D;
+                            output[o] = this.chars[N > 0 ? N : 0] || ' ';
+                        }
+                    }
+                }
+
+                let result = '';
+                for (let k = 0; k < height; k++) {
+                    for (let j = 0; j < width; j++) {
+                        result += output[k * width + j];
+                    }
+                    result += '\n';
+                }
+                
+                return result;
+            }
+
+            setSpeed(speed) {
+                const s = parseInt(speed);
+                if (s >= 1 && s <= 10) {
+                    this.speed = s;
+                    this.addToHistory(`Speed set to ${s}`);
+                } else {
+                    this.addToHistory('Speed must be between 1 and 10');
+                }
+            }
+
+            setSize(size) {
+                if (['S', 'M', 'L', 's', 'm', 'l'].includes(size)) {
+                    this.size = size.toUpperCase();
+                    this.addToHistory(`Size set to ${this.size}`);
+                } else {
+                    this.addToHistory('Size must be S, M, or L');
+                }
+            }
+
+            setChars(chars) {
+                if (chars && chars.length > 0) {
+                    this.chars = chars;
+                    this.addToHistory(`Characters set to: ${chars}`);
+                } else {
+                    this.addToHistory('Please provide characters for rendering');
+                }
+            }
+
+            setAxis(axis) {
+                const validAxes = ['x', 'y', 'z', 'xy', 'xz', 'yz', 'xyz'];
+                if (validAxes.includes(axis)) {
+                    this.axis = axis.toUpperCase();
+                    this.addToHistory(`Rotation axis set to ${this.axis}`);
+                } else {
+                    this.addToHistory('Valid axes: x, y, z, xy, xz, yz, xyz');
+                }
+            }
+
+            toggleReverse() {
+                this.reverse = !this.reverse;
+                this.addToHistory(`Rotation ${this.reverse ? 'reversed' : 'normal'}`);
+            }
+
+            reset() {
+                this.speed = 5;
+                this.size = 'M';
+                this.chars = '.,-~:;=!*#$@';
+                this.axis = 'XY';
+                this.fps = 60;
+                this.colors = false;
+                this.reverse = false;
+                this.addToHistory('Reset to default parameters');
+            }
+
+            setFps(fps) {
+                const f = parseInt(fps);
+                if (f >= 1 && f <= 120) {
+                    this.fps = f;
+                    this.addToHistory(`FPS set to ${f}`);
+                } else {
+                    this.addToHistory('FPS must be between 1 and 120');
+                }
+            }
+
+            toggleColors(state) {
+                if (state === 'on') {
+                    this.colors = true;
+                    this.addToHistory('Colors enabled');
+                } else if (state === 'off') {
+                    this.colors = false;
+                    this.addToHistory('Colors disabled');
+                } else {
+                    this.colors = !this.colors;
+                    this.addToHistory(`Colors ${this.colors ? 'enabled' : 'disabled'}`);
+                }
+            }
+
+            clearHistory() {
+                this.commandHistory.innerHTML = '';
+            }
+
+            showHelp() {
+                const help = [
+                    'Available commands:',
+                    '  start           - Begin donut rotation',
+                    '  stop            - Halt donut rotation',
+                    '  speed [1-10]    - Set rotation speed',
+                    '  size [S/M/L]    - Set donut size',
+                    '  chars [string]  - Set ASCII characters',
+                    '  axis [x/y/z]    - Change rotation axis',
+                    '  reverse         - Reverse rotation',
+                    '  reset           - Reset parameters',
+                    '  fps [number]    - Set frames per second',
+                    '  colors [on/off] - Toggle colors',
+                    '  clear           - Clear screen',
+                    '  help            - Show this help',
+                    '  man             - Show manual',
+                    '  exit            - Exit terminal mode'
+                ];
+                help.forEach(line => this.addToHistory(line));
+            }
+
+            showManual() {
+                const manual = [
+                    'DONUT(1)                    User Commands                    DONUT(1)',
+                    '',
+                    'NAME',
+                    '    donut - ASCII spinning donut controller',
+                    '',
+                    'SYNOPSIS',
+                    '    donut [COMMAND] [OPTIONS]',
+                    '',
+                    'DESCRIPTION',
+                    '    Controls the classic ASCII spinning donut animation.',
+                    '    Based on the original donut.c by Andy Sloane.',
+                    '',
+                    'KEYBOARD SHORTCUTS',
+                    '    Shift+T    Toggle terminal mode',
+                    '    Ctrl+C     Stop animation',
+                    '    Ctrl+L     Clear screen',
+                    '    Tab        Auto-complete',
+                    '    ↑/↓        Command history',
+                    '',
+                    'EASTER EGGS',
+                    '    konami     Rainbow colors',
+                    '    matrix     Matrix effect',
+                    '    turbo      Maximum speed',
+                    '    tiny       Miniature donut'
+                ];
+                manual.forEach(line => this.addToHistory(line));
+            }
+
+            activateRainbow() {
+                this.donutDisplay.classList.add('rainbow-mode');
+                this.addToHistory('🌈 Rainbow mode activated!');
+                setTimeout(() => {
+                    this.donutDisplay.classList.remove('rainbow-mode');
+                }, 10000);
+            }
+
+            activateMatrix() {
+                this.donutDisplay.classList.add('matrix-mode');
+                this.chars = '01';
+                this.addToHistory('Matrix mode activated - Follow the white rabbit...');
+                setTimeout(() => {
+                    this.donutDisplay.classList.remove('matrix-mode');
+                    this.chars = '.,-~:;=!*#$@';
+                }, 15000);
+            }
+
+            activateTurbo() {
+                const oldSpeed = this.speed;
+                this.speed = 10;
+                this.fps = 120;
+                this.addToHistory('🚀 TURBO MODE ENGAGED!');
+                setTimeout(() => {
+                    this.speed = oldSpeed;
+                    this.fps = 60;
+                    this.addToHistory('Turbo mode deactivated');
+                }, 5000);
+            }
+
+            activateTiny() {
+                const oldSize = this.size;
+                this.size = 'S';
+                this.chars = '·';
+                this.addToHistory('🔍 Tiny donut mode activated');
+                setTimeout(() => {
+                    this.size = oldSize;
+                    this.chars = '.,-~:;=!*#$@';
+                }, 8000);
+            }
+
+            addToHistory(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                this.commandHistory.appendChild(div);
+                this.commandHistory.scrollTop = this.commandHistory.scrollHeight;
+                
+                this.commandHistory.push(text);
+                if (this.commandHistory.length > 100) {
+                    this.commandHistory.shift();
+                }
+            }
+
+            navigateHistory(direction) {
+                // Implementation for command history navigation
+            }
+
+            autoComplete() {
+                const commands = ['start', 'stop', 'speed', 'size', 'chars', 'axis', 'reverse', 'reset', 'fps', 'colors', 'clear', 'help', 'man', 'exit'];
+                const input = this.commandInput.value.toLowerCase();
+                const matches = commands.filter(cmd => cmd.startsWith(input));
+                
+                if (matches.length === 1) {
+                    this.commandInput.value = matches[0];
+                } else if (matches.length > 1) {
+                    this.addToHistory(`Possible completions: ${matches.join(', ')}`);
+                }
+            }
+
+            updateStatus() {
+                this.statusLine.textContent = `Speed: ${this.speed} | Size: ${this.size} | Axis: ${this.axis} | FPS: ${this.fps} | Status: ${this.isRunning ? 'Running' : 'Stopped'}`;
+            }
+        }
+
+        // Initialize the donut controller when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new DonutController();
+        });
+    </script>
+</body>
+</html>

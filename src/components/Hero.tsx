@@ -8,9 +8,6 @@ const Hero = () => {
           </h1>
           
           <div className="space-y-6 text-lg leading-relaxed text-foreground max-w-2xl">
-            <p>
-              i'm saju. welcome, i guess :)
-            </p>
             
             <p>
               i'm an undergrad in <strong>ai & data science</strong>. i spend my time building things that probably shouldn't exist but do anyway. some were big ideas — like a <strong>gpu marketplace</strong> that might morph into a gpu cluster center. others were just me having fun, like writing a <strong>blockchain in c++</strong> with utxo, merkle trees, pow, and ecdsa just because i wanted to see if i could.

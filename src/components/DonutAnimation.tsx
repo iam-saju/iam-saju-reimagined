@@ -24,17 +24,17 @@ const DonutAnimation = ({ settings, isVisible }: DonutAnimationProps) => {
   const frameTimeRef = useRef<number[]>([]);
   
   useEffect(() => {
-    // Size configurations
+    // Size configurations - increased density
     const sizes = {
-      small: { width: 40, height: 20 },
-      medium: { width: 60, height: 30 },
-      large: { width: 80, height: 40 }
+      small: { width: 50, height: 25 },
+      medium: { width: 70, height: 35 },
+      large: { width: 90, height: 45 }
     };
     
     const size = sizes[settings.size];
     
-    // ASCII characters for shading (from darkest to brightest)
-    const chars = '.,-~:;=!*#$@';
+    // ASCII characters for shading (from darkest to brightest) - more variety
+    const chars = ' .\'`^",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$';
     
     const render = (timestamp: number) => {
       if (settings.paused) {
@@ -57,9 +57,9 @@ const DonutAnimation = ({ settings, isVisible }: DonutAnimationProps) => {
       const output = Array(size.height).fill(null).map(() => Array(size.width).fill(' '));
       const zbuffer = Array(size.height).fill(null).map(() => Array(size.width).fill(0));
       
-      // Donut rendering algorithm (a1k0n's approach)
-      for (let j = 0; j < 6.28; j += 0.07) {
-        for (let i = 0; i < 6.28; i += 0.02) {
+      // Donut rendering algorithm with denser sampling
+      for (let j = 0; j < 6.28; j += 0.03) { // Reduced from 0.07 to 0.03
+        for (let i = 0; i < 6.28; i += 0.01) { // Reduced from 0.02 to 0.01
           const c = Math.sin(i);
           const d = Math.cos(j);
           const e = Math.sin(A.current);
@@ -72,13 +72,14 @@ const DonutAnimation = ({ settings, isVisible }: DonutAnimationProps) => {
           const n = Math.sin(B.current);
           const t = c * h * g - f * e;
           
-          const x = Math.floor(size.width / 2 + (size.width / 3) * D * (l * h * m - t * n));
-          const y = Math.floor(size.height / 2 + (size.height / 4) * D * (l * h * n + t * m));
-          const luminance = Math.floor(8 * ((f * e - c * d * g) * m - c * d * e - f * g - l * d * n));
+          const x = Math.floor(size.width / 2 + (size.width / 2.5) * D * (l * h * m - t * n));
+          const y = Math.floor(size.height / 2 + (size.height / 3) * D * (l * h * n + t * m));
+          const luminance = Math.floor(12 * ((f * e - c * d * g) * m - c * d * e - f * g - l * d * n));
           
           if (y >= 0 && y < size.height && x >= 0 && x < size.width && D > zbuffer[y][x]) {
             zbuffer[y][x] = D;
-            output[y][x] = luminance > 0 ? chars[Math.min(Math.max(luminance, 0), chars.length - 1)] : '.';
+            const charIndex = Math.max(0, Math.min(luminance + 8, chars.length - 1));
+            output[y][x] = chars[charIndex];
           }
         }
       }
@@ -104,9 +105,9 @@ const DonutAnimation = ({ settings, isVisible }: DonutAnimationProps) => {
   }, [settings]);
   
   const fontSize = {
-    small: 'text-xs',
-    medium: 'text-sm',
-    large: 'text-base'
+    small: 'text-sm',
+    medium: 'text-base', 
+    large: 'text-lg'
   };
 
   return (
@@ -121,9 +122,10 @@ const DonutAnimation = ({ settings, isVisible }: DonutAnimationProps) => {
         style={{ 
           color: settings.color,
           whiteSpace: 'pre',
-          fontFamily: 'monospace',
-          lineHeight: 1,
-          letterSpacing: '0.1em'
+          fontFamily: 'Consolas, "Courier New", monospace',
+          lineHeight: 0.8,
+          letterSpacing: '-0.05em',
+          fontWeight: 'bold'
         }}
       >
         {asciiOutput}

@@ -14,8 +14,8 @@ interface DonutAnimationProps {
 }
 
 const DonutAnimation = ({ settings, isVisible }: DonutAnimationProps) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
+  const [asciiOutput, setAsciiOutput] = useState<string>('');
   const [fps, setFps] = useState(60);
   
   const A = useRef(0);
@@ -24,24 +24,16 @@ const DonutAnimation = ({ settings, isVisible }: DonutAnimationProps) => {
   const frameTimeRef = useRef<number[]>([]);
   
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    // Set canvas size based on settings
+    // Size configurations
     const sizes = {
-      small: { width: 60, height: 30 },
-      medium: { width: 80, height: 40 },
-      large: { width: 100, height: 50 }
+      small: { width: 40, height: 20 },
+      medium: { width: 60, height: 30 },
+      large: { width: 80, height: 40 }
     };
     
     const size = sizes[settings.size];
-    canvas.width = size.width;
-    canvas.height = size.height;
     
-    // ASCII characters for shading
+    // ASCII characters for shading (from darkest to brightest)
     const chars = '.,-~:;=!*#$@';
     
     const render = (timestamp: number) => {
@@ -61,9 +53,7 @@ const DonutAnimation = ({ settings, isVisible }: DonutAnimationProps) => {
         setFps(Math.round(1000 / avgFrameTime));
       }
       
-      ctx.fillStyle = 'black';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
+      // Initialize output buffer
       const output = Array(size.height).fill(null).map(() => Array(size.width).fill(' '));
       const zbuffer = Array(size.height).fill(null).map(() => Array(size.width).fill(0));
       
@@ -82,29 +72,22 @@ const DonutAnimation = ({ settings, isVisible }: DonutAnimationProps) => {
           const n = Math.sin(B.current);
           const t = c * h * g - f * e;
           
-          const x = Math.floor(size.width / 2 + (size.width / 4) * D * (l * h * m - t * n));
-          const y = Math.floor(size.height / 2 + (size.height / 8) * D * (l * h * n + t * m));
-          const o = Math.floor(8 * ((f * e - c * d * g) * m - c * d * e - f * g - l * d * n));
+          const x = Math.floor(size.width / 2 + (size.width / 3) * D * (l * h * m - t * n));
+          const y = Math.floor(size.height / 2 + (size.height / 4) * D * (l * h * n + t * m));
+          const luminance = Math.floor(8 * ((f * e - c * d * g) * m - c * d * e - f * g - l * d * n));
           
           if (y >= 0 && y < size.height && x >= 0 && x < size.width && D > zbuffer[y][x]) {
             zbuffer[y][x] = D;
-            output[y][x] = o > 0 ? chars[Math.min(o, chars.length - 1)] : '.';
+            output[y][x] = luminance > 0 ? chars[Math.min(Math.max(luminance, 0), chars.length - 1)] : '.';
           }
         }
       }
       
-      // Render ASCII to canvas
-      ctx.fillStyle = settings.color;
-      ctx.font = '10px monospace';
+      // Convert 2D array to string
+      const asciiString = output.map(row => row.join('')).join('\n');
+      setAsciiOutput(asciiString);
       
-      for (let y = 0; y < size.height; y++) {
-        for (let x = 0; x < size.width; x++) {
-          if (output[y][x] !== ' ') {
-            ctx.fillText(output[y][x], x * 8, y * 12 + 10);
-          }
-        }
-      }
-      
+      // Update rotation angles
       A.current += 0.04 * settings.speed;
       B.current += 0.02 * settings.speed;
       
@@ -120,6 +103,12 @@ const DonutAnimation = ({ settings, isVisible }: DonutAnimationProps) => {
     };
   }, [settings]);
   
+  const fontSize = {
+    small: 'text-xs',
+    medium: 'text-sm',
+    large: 'text-base'
+  };
+
   return (
     <div 
       className={`fixed inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300 ${
@@ -127,14 +116,18 @@ const DonutAnimation = ({ settings, isVisible }: DonutAnimationProps) => {
       }`}
       style={{ opacity: isVisible ? settings.opacity / 100 : 0.3 }}
     >
-      <canvas 
-        ref={canvasRef}
-        className="pixelated"
-        style={{
-          imageRendering: 'pixelated',
-          transform: 'scale(2)',
+      <pre 
+        className={`font-mono leading-none ${fontSize[settings.size]} select-none`}
+        style={{ 
+          color: settings.color,
+          whiteSpace: 'pre',
+          fontFamily: 'monospace',
+          lineHeight: 1,
+          letterSpacing: '0.1em'
         }}
-      />
+      >
+        {asciiOutput}
+      </pre>
     </div>
   );
 };

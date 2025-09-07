@@ -114,7 +114,7 @@ const ArchiveUpload = () => {
 
     // Generate unique filename with timestamp
     const timestamp = Date.now();
-    const extension = uploadFile.file.name.split('.').pop();
+    // const extension = uploadFile.file.name.split('.').pop();
     const filename = `${timestamp}_${uploadFile.file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
     formData.append('filename', filename);
 

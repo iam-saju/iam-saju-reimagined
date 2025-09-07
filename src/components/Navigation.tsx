@@ -19,17 +19,17 @@ const Navigation = ({ isDarkMode = false, onToggleTheme }: NavigationProps) => {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
       isDarkMode 
-        ? 'bg-black/90 backdrop-blur-sm border-b border-gray-700' 
-        : 'bg-background/80 backdrop-blur-sm border-b border-border'
-    }`}>
+        ? '' 
+        : 'bg-white'
+    }`} style={{ backgroundColor: isDarkMode ? '#1C1C1C' : undefined }}>
       <div className="max-w-4xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <button 
             onClick={() => scrollToSection('more')}
             className={`text-lg font-medium transition-colors ${
               isDarkMode 
-                ? 'text-white hover:text-gray-200' 
-                : 'text-foreground hover:text-primary'
+                ? 'text-gray-200 hover:text-gray-100' 
+                : 'text-foreground hover:text-foreground/80'
             }`}
           >
             saju
@@ -44,8 +44,8 @@ const Navigation = ({ isDarkMode = false, onToggleTheme }: NavigationProps) => {
                 onClick={() => scrollToSection(item.id)}
                 className={`transition-colors ${
                   activeSection === item.id 
-                    ? (isDarkMode ? 'text-white font-medium' : 'text-foreground font-medium')
-                    : (isDarkMode ? 'text-gray-300 hover:text-white' : 'text-muted-foreground hover:text-foreground')
+                    ? (isDarkMode ? 'text-gray-200 font-medium' : 'text-foreground font-medium')
+                    : (isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-muted-foreground hover:text-foreground')
                 }`}
               >
                 {item.label}
@@ -55,7 +55,7 @@ const Navigation = ({ isDarkMode = false, onToggleTheme }: NavigationProps) => {
             <a
               href="/posts"
               className={`transition-colors ${
-                isDarkMode ? 'text-gray-300 hover:text-white' : 'text-muted-foreground hover:text-foreground'
+                isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               posts
@@ -64,7 +64,7 @@ const Navigation = ({ isDarkMode = false, onToggleTheme }: NavigationProps) => {
             <a
               href="/archive"
               className={`transition-colors ${
-                isDarkMode ? 'text-gray-300 hover:text-white' : 'text-muted-foreground hover:text-foreground'
+                isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               archive

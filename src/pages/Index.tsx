@@ -1,10 +1,8 @@
-import { useState } from 'react';
 import { useDonutTerminal } from '@/hooks/useDonutTerminal';
 import { useTheme } from '@/hooks/useTheme';
 import Navigation from '@/components/Navigation';
 import Hero from '@/components/Hero';
 import Footer from '@/components/Footer';
-import DonutBackground from "@/components/DonutBackground";
 
 interface IndexProps {
   donutState?: {
@@ -14,7 +12,7 @@ interface IndexProps {
   };
 }
 
-const Index = ({ donutState }: IndexProps) => {
+const Index = ({}: IndexProps) => {
   const { isTerminalVisible } = useDonutTerminal();
   const { isDarkMode, toggleTheme } = useTheme();
 
@@ -22,26 +20,30 @@ const Index = ({ donutState }: IndexProps) => {
   console.log('Index render - isTerminalVisible:', isTerminalVisible);
 
   return (
-    <div className={`min-h-screen font-sans relative transition-colors duration-300 ${
-      isDarkMode ? 'bg-black text-white' : 'bg-white text-foreground'
-    }`}>
-      {/* Light mode background gradient */}
+    <div className={`h-screen font-sans relative transition-colors duration-300 overflow-hidden ${
+      isDarkMode ? 'text-gray-200' : 'bg-white text-foreground'
+    }`} style={{ backgroundColor: isDarkMode ? '#1C1C1C' : undefined }}>
+      {/* Light mode background - pure white */}
       {!isTerminalVisible && !isDarkMode && (
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100" />
+        <div className="absolute inset-0 bg-white" />
       )}
       
-      {/* Terminal mode: pure black background */}
+      {/* Terminal mode: dark background */}
       {isTerminalVisible && (
-        <div className="absolute inset-0 bg-black" />
+        <div className="absolute inset-0 bg-[#0a0a0a]" />
       )}
       
       {/* Hide navigation when terminal is visible */}
       {!isTerminalVisible && <Navigation isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />}
       
       <main className="relative z-10">
-        {/* Hide hero content when terminal is visible */}
-        {!isTerminalVisible && <Hero isDarkMode={isDarkMode} />}
-        {!isTerminalVisible && <Footer isDarkMode={isDarkMode} />}
+        {/* Hide main content when terminal is visible */}
+        {!isTerminalVisible && (
+          <>
+            <Hero isDarkMode={isDarkMode} />
+            <Footer isDarkMode={isDarkMode} />
+          </>
+        )}
       </main>
     </div>
   );

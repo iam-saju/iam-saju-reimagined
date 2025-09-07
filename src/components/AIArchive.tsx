@@ -12,7 +12,7 @@ interface AIImage {
 
 const AIArchive = () => {
   const [selectedImage, setSelectedImage] = useState<AIImage | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const { isDarkMode, toggleTheme } = useTheme();
 
   // Sample AI images data
@@ -87,14 +87,14 @@ const AIArchive = () => {
 
   return (
     <div className={`min-h-screen font-sans transition-colors duration-300 ${
-      isDarkMode ? 'bg-black text-white' : 'bg-background text-foreground'
-    }`}>
+      isDarkMode ? 'text-white' : 'bg-background text-foreground'
+    }`} style={{ backgroundColor: isDarkMode ? '#1C1C1C' : undefined }}>
       {/* Header */}
       <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b transition-colors duration-300 ${
         isDarkMode 
-          ? 'bg-black/90 border-gray-700' 
+          ? 'border-gray-700' 
           : 'bg-background/80 border-border'
-      }`}>
+      }`} style={{ backgroundColor: isDarkMode ? '#1C1C1C' : undefined }}>
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
           <a 
             href="/" 

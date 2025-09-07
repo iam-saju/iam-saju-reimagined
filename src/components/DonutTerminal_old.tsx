@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useGlobalDonut } from '../hooks/useGlobalDonut';
 
 interface DonutTerminalProps {
@@ -9,7 +10,8 @@ interface DonutTerminalProps {
 }
 
 const DonutTerminal: React.FC<DonutTerminalProps> = ({ isVisible, onClose }) => {
-  const { globalState, setRunning, setSpeed, setColor, reset } = useGlobalDonut();
+  const navigate = useNavigate();
+  const { globalState, setRunning, setSpeed, setColor, reset, setSize } = useGlobalDonut();
   const [commandOutput, setCommandOutput] = useState('');
   const [commandInput, setCommandInput] = useState('');
   const [bgColor, setBgColor] = useState('#ffffff');
@@ -45,38 +47,90 @@ const DonutTerminal: React.FC<DonutTerminalProps> = ({ isVisible, onClose }) => 
           return;
         }
         
+        // ASCII characters (exact same as v0-to-ascii)
         const ASCII_CHARS = '@%#*+=-:. ';
-        let asciiStr = '';
+        
+        let asciiArt = '';
         
         for (let y = 0; y < height; y++) {
           for (let x = 0; x < maxWidth; x++) {
-            const pixelIndex = (y * maxWidth + x) * 4;
-            const r = imageData.data[pixelIndex];
-            const g = imageData.data[pixelIndex + 1];
-            const b = imageData.data[pixelIndex + 2];
+            const index = (y * maxWidth + x) * 4;
+            const r = imageData.data[index];
+            const g = imageData.data[index + 1];
+            const b = imageData.data[index + 2];
             
-            const brightness = (r + g + b) / 3;
-            const charIndex = Math.floor((brightness / 255) * (ASCII_CHARS.length - 1));
-            asciiStr += ASCII_CHARS[ASCII_CHARS.length - 1 - charIndex];
+            // Grayscale conversion (luminance formula)
+            const gray = Math.floor(0.299 * r + 0.587 * g + 0.114 * b);
+            
+            // Map to ASCII character
+            const charIndex = Math.floor((gray / 255) * (ASCII_CHARS.length - 1));
+            asciiArt += ASCII_CHARS[ASCII_CHARS.length - 1 - charIndex];
           }
-          asciiStr += '\n';
+          asciiArt += '\n';
         }
         
-        resolve(asciiStr);
+        resolve(asciiArt);
       };
+      
       img.src = imageDataUrl;
     });
   }, []);
 
-  // File upload handler
+  // Handle file upload
   const handleFileUpload = useCallback(async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      setCommandOutput('Error: Please upload an image file');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      setCommandOutput('Error: File size too large (max 10MB)');
+      return;
+    }
+
+    setCommandOutput('Converting image to ASCII art...');
+    
     const reader = new FileReader();
     reader.onload = async (e) => {
-      const dataUrl = e.target?.result as string;
-      const ascii = await convertToAscii(dataUrl);
-      setAsciiArt(ascii);
-      setCommandOutput('✓ ASCII art generated');
+      const imageDataUrl = e.target?.result as string;
+      
+      try {
+        // Attempt conversion multiple times if needed
+        let asciiResult: string;
+        let attempts = 0;
+        const maxAttempts = 5;
+        
+        do {
+          asciiResult = await convertToAscii(imageDataUrl);
+          attempts++;
+          console.log(`ASCII Art Generation Attempt ${attempts}:`, asciiResult.substring(0, 200) + '...');
+          
+          if (!asciiResult || asciiResult.trim().length === 0) {
+            console.warn(`Attempt ${attempts} failed, retrying...`);
+            await new Promise(resolve => setTimeout(resolve, 100)); // Wait 100ms before retry
+          }
+        } while ((!asciiResult || asciiResult.trim().length === 0) && attempts < maxAttempts);
+        
+        if (asciiResult && asciiResult.trim().length > 0) {
+          setAsciiArt(asciiResult);
+          setCommandOutput('✓ ASCII art displayed in canvas!');
+          
+          // Force multiple re-renders to ensure display
+          for (let i = 0; i < 3; i++) {
+            setTimeout(() => {
+              // Just log the update, no need for forceUpdate
+              console.log(`Render update ${i + 1} completed`);
+            }, 200 * (i + 1));
+          }
+        } else {
+          setCommandOutput('Error: Could not generate ASCII art after multiple attempts');
+        }
+      } catch (error) {
+        console.error('ASCII conversion error:', error);
+        setCommandOutput('Error: Failed to convert image');
+      }
     };
+    
     reader.readAsDataURL(file);
   }, [convertToAscii]);
 
@@ -95,65 +149,82 @@ const DonutTerminal: React.FC<DonutTerminalProps> = ({ isVisible, onClose }) => 
     e.preventDefault();
     setIsDragOver(false);
     
-    const files = Array.from(e.dataTransfer.files);
-    const imageFile = files.find(file => file.type.startsWith('image/'));
-    
-    if (imageFile) {
-      handleFileUpload(imageFile);
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileUpload(files[0]);
     }
   }, [handleFileUpload]);
 
-  // Donut animation
-  const animate = useCallback(() => {
-    if (!donutDisplayRef.current || !globalState.isRunning) return;
+  // Terminal prompt constants
+  const terminalPrompt = 'root@donut:~#';
 
-    const A = globalState.A;
-    const B = globalState.B;
+  // EXACT same donut algorithm using global state
+  const renderDonut = useCallback(() => {
+    // EXACT medium size settings from DonutAnimation
+    const width = 70;
+    const height = 35;
+    const chars = ' .\'`^",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$';
     
-    const output = Array(22).fill(null).map(() => Array(80).fill(' '));
-    const zbuffer = Array(22).fill(null).map(() => Array(80).fill(0));
-
-    for (let j = 0; j < 6.28; j += 0.07) {
-      for (let i = 0; i < 6.28; i += 0.02) {
+    // Initialize output buffer
+    const output = Array(height).fill(null).map(() => Array(width).fill(' '));
+    const zbuffer = Array(height).fill(null).map(() => Array(width).fill(0));
+    
+    // EXACT same donut rendering algorithm using global state
+    for (let j = 0; j < 6.28; j += 0.03) { // EXACT same as DonutAnimation
+      for (let i = 0; i < 6.28; i += 0.01) { // EXACT same as DonutAnimation
         const c = Math.sin(i);
         const d = Math.cos(j);
-        const e = Math.sin(A);
+        const e = Math.sin(globalState.A);
         const f = Math.sin(j);
-        const g = Math.cos(A);
+        const g = Math.cos(globalState.A);
         const h = d + 2;
         const D = 1 / (c * h * e + f * g + 5);
         const l = Math.cos(i);
-        const m = Math.cos(B);
-        const n = Math.sin(B);
+        const m = Math.cos(globalState.B);
+        const n = Math.sin(globalState.B);
         const t = c * h * g - f * e;
         
-        const x = Math.floor(40 + 30 * D * (l * h * m - t * n));
-        const y = Math.floor(12 + 15 * D * (l * h * n + t * m));
-        const luminance = Math.floor(8 * ((f * e - c * d * g) * m - c * d * e - f * g - l * d * n));
+        const x = Math.floor(width / 2 + (width / 2.5) * D * (l * h * m - t * n));
+        const y = Math.floor(height / 2 + (height / 3) * D * (l * h * n + t * m));
+        const luminance = Math.floor(12 * ((f * e - c * d * g) * m - c * d * e - f * g - l * d * n));
         
-        if (y >= 0 && y < 22 && x >= 0 && x < 80 && D > zbuffer[y][x]) {
+        if (y >= 0 && y < height && x >= 0 && x < width && D > zbuffer[y][x]) {
           zbuffer[y][x] = D;
-          const chars = '.,-~:;=!*#$@';
-          const charIndex = Math.max(0, Math.min(luminance, chars.length - 1));
+          const charIndex = Math.max(0, Math.min(luminance + 8, chars.length - 1));
           output[y][x] = chars[charIndex];
         }
       }
     }
+    
+    // Convert 2D array to string
+    return output.map(row => row.join('')).join('\n');
+  }, [globalState]);
 
-    donutDisplayRef.current.textContent = output.map(row => row.join('')).join('\n');
+  const animate = useCallback(() => {
+    if (!isVisible || !globalState.isRunning || !donutDisplayRef.current) return;
+
+    const output = renderDonut();
+    donutDisplayRef.current.textContent = output;
     
     globalState.updateRotation(0.04 * globalState.speed, 0.02 * globalState.speed);
     
-    if (globalState.isRunning) {
-      animationIdRef.current = requestAnimationFrame(animate);
-    }
-  }, [globalState]);
+    animationIdRef.current = requestAnimationFrame(animate);
+  }, [isVisible, globalState, renderDonut]);
 
-  // Terminal prompt
-  const terminalPrompt = `donut@terminal:~$`;
+  // Handle close with proper cleanup - prevent duplicate terminals
+  const handleClose = useCallback(() => {
+    setRunning(true);
+    setSpeed(1);
+    setCommandOutput('');
+    setCommandInput('');
+    
+    // Ensure only one close call
+    setTimeout(() => {
+      onClose();
+    }, 0);
+  }, [onClose, setRunning, setSpeed]);
 
-
-  // Execute command
+  // Execute command function
   const executeCommand = useCallback((cmd: string) => {
     if (!cmd.trim()) return;
     
@@ -192,28 +263,53 @@ const DonutTerminal: React.FC<DonutTerminalProps> = ({ isVisible, onClose }) => 
         setCommandOutput('✓ started');
         break;
       
-      case 'stop':
-        setRunning(false);
-        setCommandOutput('✓ stopped');
-        break;
+      const theme = args[0];
+      if (theme === 'dark') {
+        setIsDarkMode(true);
+        setBgColor('#000000');
+        setCommandOutput('✓ switched to dark theme');
+      } else if (theme === 'light') {
+        setIsDarkMode(false);
+        setBgColor('#ffffff');
+        setCommandOutput('✓ switched to light theme');
+      } else {
+        setCommandOutput('usage: theme [dark|light]');
+      }
+      break;
+    
+    case 'reset':
+      reset();
+      setBgColor(isDarkMode ? '#000000' : '#ffffff');
+      setCommandOutput('✓ reset');
+      break;
+    
+    case 'clear':
+      setCommandOutput('');
+      break;
+    
+    case 'ascii':
+      if (args.length === 0) {
+        setCommandOutput('usage: ascii upload\nDrag & drop an image or use ascii upload');
+        return;
+      }
       
-      case 'speed':
-        if (args.length === 0) {
-          setCommandOutput('usage: speed [0.1-10]');
-          return;
-        }
-        const speed = parseFloat(args[0]);
-        if (isNaN(speed) || speed < 0.1 || speed > 10) {
-          setCommandOutput('speed must be 0.1-10');
-          return;
-        }
-        setSpeed(speed);
-        setCommandOutput(`✓ speed ${speed}`);
-        break;
-      
-      case 'color':
-        if (args.length === 0) {
-          setCommandOutput('usage: color [blue|red|green|purple|orange|pink|cyan|yellow|black]');
+      const subCommand = args[0];
+      if (subCommand === 'upload') {
+        // Trigger file input
+        fileInputRef.current?.click();
+        setCommandOutput('Select an image file...');
+      } else if (subCommand === 'clear') {
+        setAsciiArt(null);
+        setCommandOutput('✓ ASCII art cleared, donut restored');
+      } else if (subCommand === 'help') {
+        setCommandOutput('ascii commands:\n  ascii upload - Open file picker\n  ascii clear - Clear ASCII art\n  Drag & drop images directly');
+      } else {
+        setCommandOutput('usage: ascii upload, ascii clear, or ascii help');
+      }
+      break;
+    
+    case 'help':
+      setCommandOutput(`commands:
           return;
         }
         const colorName = args[0];
@@ -224,7 +320,6 @@ const DonutTerminal: React.FC<DonutTerminalProps> = ({ isVisible, onClose }) => 
         setColor(colors[colorName]);
         setCommandOutput(`✓ color ${colorName}`);
         break;
-      
       
       case 'bg':
         if (args.length === 0) {
@@ -278,6 +373,7 @@ const DonutTerminal: React.FC<DonutTerminalProps> = ({ isVisible, onClose }) => 
         
         const subCommand = args[0];
         if (subCommand === 'upload') {
+          // Trigger file input
           fileInputRef.current?.click();
           setCommandOutput('Select an image file...');
         } else if (subCommand === 'clear') {
@@ -297,19 +393,23 @@ speed [0.1-10], color [name], bg [name]
 ascii upload, ascii clear, ascii help
 theme [dark|light]
 reset, clear, exit, help`);
-        break;
+    break;
         
-      case 'exit':
-        setCommandOutput('✓ exiting...');
+  case 'exit':
+    // Clear output and show exit message
+    setCommandOutput('✓ exiting...');
+
+    // Close terminal immediately
+    onClose();
+
+    // Navigate to home page without delay
+    window.location.href = '/';
+    break;
         
-        // Navigate immediately without closing terminal first
-        window.location.href = '/';
-        break;
-        
-      default:
-        setCommandOutput(`unknown: ${command}`);
+  default:
+    setCommandOutput(`unknown: ${command}`);
     }
-  }, [setRunning, setSpeed, setColor, reset, handleFileUpload, isDarkMode, onClose]);
+  }, [setRunning, setSpeed, setColor, reset, handleClose, navigate, handleFileUpload, isDarkMode]);
 
   useEffect(() => {
     if (isVisible && globalState.isRunning && !asciiArt) {
@@ -332,6 +432,7 @@ reset, clear, exit, help`);
     if (e.key === 'Enter') {
       executeCommand(commandInput);
       setCommandInput('');
+      // Refocus input after command execution
       setTimeout(() => {
         if (commandInputRef.current) {
           commandInputRef.current.focus();
@@ -349,6 +450,7 @@ reset, clear, exit, help`);
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
+      {/* Hidden file input */}
       <input
         ref={fileInputRef}
         type="file"
@@ -362,17 +464,20 @@ reset, clear, exit, help`);
         className="hidden"
       />
 
+      {/* Drag overlay */}
       {isDragOver && (
         <div className="absolute inset-0 bg-blue-500/20 border-2 border-dashed border-blue-400 flex items-center justify-center z-60">
           <div className="text-blue-400 text-xl font-mono">Drop image here for ASCII conversion</div>
         </div>
       )}
 
+      {/* Dynamic Terminal Background */}
       <div 
         className="absolute inset-0 flex items-center justify-center"
         style={{ backgroundColor: bgColor }}
       >
         {asciiArt ? (
+          // Display ASCII Art
           <pre 
             className="text-base leading-none whitespace-pre font-mono text-center"
             style={{ 
@@ -384,6 +489,7 @@ reset, clear, exit, help`);
             {asciiArt}
           </pre>
         ) : (
+          // Display Spinning Donut
           <pre 
             ref={donutDisplayRef}
             className="text-base leading-none whitespace-pre"
@@ -396,16 +502,20 @@ reset, clear, exit, help`);
         )}
       </div>
       
+      {/* Terminal Chat Window - Properly Rounded */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
         <div className={`rounded-2xl shadow-2xl w-[32rem] max-w-[95vw] transition-all duration-300 border ${isDarkMode ? 'bg-background border-border' : 'bg-black border-gray-800'}`}>
           
+          {/* Simple Output Area - Non-scrollable */}
           <div className="px-6 pt-6 pb-4">
+            {/* Command Output */}
             {commandOutput && (
               <div className={`text-sm font-mono leading-relaxed whitespace-pre-wrap ${isDarkMode ? 'text-green-300' : 'text-green-400'}`}>
                 {commandOutput}
               </div>
             )}
             
+            {/* Welcome message when no output */}
             {!commandOutput && (
               <div className={`text-sm font-mono text-center py-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 type commands to control donut
@@ -413,6 +523,7 @@ reset, clear, exit, help`);
             )}
           </div>
           
+          {/* Clean Input Area */}
           <div className={`px-6 pb-6 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-800'}`}>
             <div className="flex items-center pt-4">
               <span className={`text-sm font-mono mr-3 ${isDarkMode ? 'text-green-300' : 'text-green-400'}`}>{terminalPrompt}</span>

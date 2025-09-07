@@ -18,7 +18,6 @@ const DonutAnimation = ({ settings, isVisible }: DonutAnimationProps) => {
   const { globalState } = useGlobalDonut();
   const animationRef = useRef<number>();
   const [asciiOutput, setAsciiOutput] = useState<string>('');
-  const [fps, setFps] = useState(60);
   
   const frameTimeRef = useRef<number[]>([]);
   
@@ -30,7 +29,7 @@ const DonutAnimation = ({ settings, isVisible }: DonutAnimationProps) => {
       large: { width: 90, height: 45 }
     };
     
-    const size = sizes[settings.size];
+    const size = sizes['medium']; // Fixed size - always medium
     
     // ASCII characters for shading (from darkest to brightest) - more variety
     const chars = ' .\'`^",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$';
@@ -47,10 +46,7 @@ const DonutAnimation = ({ settings, isVisible }: DonutAnimationProps) => {
         frameTimeRef.current.shift();
       }
       
-      if (frameTimeRef.current.length > 1) {
-        const avgFrameTime = (frameTimeRef.current[frameTimeRef.current.length - 1] - frameTimeRef.current[0]) / (frameTimeRef.current.length - 1);
-        setFps(Math.round(1000 / avgFrameTime));
-      }
+      // FPS calculation removed as it's not used
       
       // Initialize output buffer
       const output = Array(size.height).fill(null).map(() => Array(size.width).fill(' '));

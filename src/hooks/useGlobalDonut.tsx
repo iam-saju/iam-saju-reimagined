@@ -7,7 +7,6 @@ class GlobalDonutState {
   public B = 0;
   public isRunning = true;
   public speed = 1;
-  public size = 'medium' as 'small' | 'medium' | 'large';
   public color = '#4a9eff';
   private listeners: (() => void)[] = [];
 
@@ -44,10 +43,6 @@ class GlobalDonutState {
     this.notify();
   }
 
-  setSize(newSize: 'small' | 'medium' | 'large') {
-    this.size = newSize;
-    this.notify();
-  }
 
   setColor(newColor: string) {
     this.color = newColor;
@@ -56,7 +51,6 @@ class GlobalDonutState {
 
   reset() {
     this.speed = 1;
-    this.size = 'medium';
     this.isRunning = true;
     this.color = '#4a9eff';
     this.notify();
@@ -80,12 +74,10 @@ export const useGlobalDonut = () => {
       B: globalState.B,
       isRunning: globalState.isRunning,
       speed: globalState.speed,
-      size: globalState.size,
       color: globalState.color
     }),
     setRunning: (running: boolean) => globalState.setRunning(running),
     setSpeed: (speed: number) => globalState.setSpeed(speed),
-    setSize: (size: 'small' | 'medium' | 'large') => globalState.setSize(size),
     setColor: (color: string) => globalState.setColor(color),
     reset: () => globalState.reset()
   };

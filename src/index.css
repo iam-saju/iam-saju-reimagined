@@ -195,9 +195,9 @@
   }
 
   .dark {
-    --background: 0 0% 9%;
-    --foreground: 0 0% 98%;
-    --muted: 0 0% 15%;
+    --background: 240 10% 7%;
+    --foreground: 0 0% 95%;
+    --muted: 240 10% 12%;
     --muted-foreground: 0 0% 65%;
     --primary: 220 100% 60%;
     --primary-foreground: 0 0% 9%;
@@ -217,6 +217,7 @@
   body {
     @apply bg-background text-foreground font-sans;
     font-feature-settings: "rlig" 1, "calt" 1;
+    background-color: #1C1C1C !important;
   }
   
   html {

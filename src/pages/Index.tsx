@@ -20,7 +20,7 @@ const Index = ({}: IndexProps) => {
   console.log('Index render - isTerminalVisible:', isTerminalVisible);
 
   return (
-    <div className={`h-screen font-sans relative transition-colors duration-300 overflow-hidden ${
+    <div className={`min-h-screen font-sans relative transition-colors duration-300 ${
       isDarkMode ? 'text-gray-200' : 'bg-white text-foreground'
     }`} style={{ backgroundColor: isDarkMode ? '#1C1C1C' : undefined }}>
       {/* Light mode background - pure white */}

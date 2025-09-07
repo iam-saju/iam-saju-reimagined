@@ -38,7 +38,7 @@ const Hero = ({ isDarkMode = false }: HeroProps) => {
   }, [globalState, subscribe]);
 
   return (
-    <section id="about" className="h-screen flex items-center justify-start relative overflow-hidden bg-white">
+    <section id="about" className="min-h-screen flex items-center justify-start relative overflow-hidden">
       {/* Donut Animation Background - Connected to Global State */}
       <DonutAnimation 
         settings={donutSettings}

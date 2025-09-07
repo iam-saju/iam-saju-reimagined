@@ -31,7 +31,7 @@ const Footer = ({ isDarkMode = false }: FooterProps) => {
   };
 
   return (
-    <footer className="py-8">
+    <footer className={`py-8 ${isDarkMode ? '' : 'bg-white'}`}>
       <div className="max-w-4xl mx-auto px-6">
         <div className={`pt-8 border-t ${isDarkMode ? 'border-gray-700' : 'border-border'}`}>
           <div className="flex justify-between items-center">

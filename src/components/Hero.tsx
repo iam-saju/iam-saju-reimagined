@@ -48,7 +48,7 @@ const Hero = ({ isDarkMode = false }: HeroProps) => {
       {/* Hero Content */}
       <div className="max-w-4xl mx-auto px-6 pt-10 relative z-10">
         <div className="space-y-4">
-          <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-foreground'}`}>
+          <h1 className={`text-3xl md:text-4xl font-bold tracking-tight ${isDarkMode ? 'text-white' : 'text-foreground'} mb-4`}>
             hey.
           </h1>
           

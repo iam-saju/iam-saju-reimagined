@@ -1,16 +1,10 @@
-import { useDonutTerminal } from '@/hooks/useDonutTerminal';
+import { useDonutTerminal } from '@/hooks/useSimpleTerminal';
 import { useTheme } from '@/hooks/useTheme';
 import Navigation from '@/components/Navigation';
 import Hero from '@/components/Hero';
 import Footer from '@/components/Footer';
 
-interface IndexProps {
-  donutState?: {
-    updateRotation: (deltaA: number, deltaB: number) => void;
-    getRotation: () => { A: number; B: number };
-    setRotation: (A: number, B: number) => void;
-  };
-}
+interface IndexProps {}
 
 const Index = ({}: IndexProps) => {
   const { isTerminalVisible } = useDonutTerminal();

@@ -4,8 +4,6 @@ import { useGlobalDonut } from '../hooks/useGlobalDonut';
 interface DonutTerminalProps {
   isVisible: boolean;
   onClose: () => void;
-  initialA?: number;
-  initialB?: number;
 }
 
 const DonutTerminal: React.FC<DonutTerminalProps> = ({ isVisible, onClose }) => {

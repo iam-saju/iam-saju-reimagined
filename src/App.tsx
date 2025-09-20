@@ -9,14 +9,12 @@ import AIArchive from "./components/AIArchive";
 import AdminArchive from "./pages/AdminArchive";
 import NotFound from "./pages/NotFound";
 import DonutTerminal from "./components/DonutTerminal";
-import { useDonutTerminal } from "./hooks/useDonutTerminal";
-import { useDonutState } from "./hooks/useDonutState";
+import { useSimpleTerminal } from "./hooks/useSimpleTerminal";
 
 const queryClient = new QueryClient();
 
 const App = () => {
-  const { isTerminalVisible, closeTerminal } = useDonutTerminal();
-  const donutState = useDonutState();
+  const { isTerminalVisible, closeTerminal } = useSimpleTerminal();
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -25,18 +23,15 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index donutState={donutState} />} />
+            <Route path="/" element={<Index />} />
             <Route path="/posts" element={<Notes />} />
             <Route path="/archive" element={<AIArchive />} />
             <Route path="/admin/archive-upload" element={<AdminArchive />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
           <DonutTerminal 
             isVisible={isTerminalVisible} 
             onClose={closeTerminal}
-            initialA={donutState.getRotation().A}
-            initialB={donutState.getRotation().B}
           />
         </BrowserRouter>
       </TooltipProvider>

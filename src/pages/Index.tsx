@@ -20,12 +20,10 @@ const Index = ({}: IndexProps) => {
   console.log('Index render - isTerminalVisible:', isTerminalVisible);
 
   return (
-    <div className={`min-h-screen font-sans relative transition-colors duration-300 ${
-      isDarkMode ? 'text-gray-200' : 'bg-white text-foreground'
-    }`} style={{ backgroundColor: isDarkMode ? '#1C1C1C' : undefined }}>
-      {/* Light mode background - pure white */}
-      {!isTerminalVisible && !isDarkMode && (
-        <div className="absolute inset-0 bg-white" />
+    <div className={`min-h-screen font-sans relative transition-colors duration-300 bg-background text-foreground`}>
+      {/* Light mode background */}
+      {!isTerminalVisible && (
+        <div className="absolute inset-0 bg-background" />
       )}
       
       {/* Terminal mode: dark background */}

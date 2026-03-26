@@ -127,7 +127,7 @@ const HeroDonut = ({ accentColor }: HeroDonutProps) => {
                 letterSpacing: '0.04em',
                 userSelect: 'none',
                 margin: 0,
-                opacity: 0.15,
+                opacity: 0.25,
                 overflow: 'visible',
                 color: accent,
                 transition: 'color 1s ease-in-out',

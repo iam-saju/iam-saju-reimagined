@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Charter:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Georgia:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -113,6 +115,35 @@
   animation: typewriter 2s steps(20, end);
 }
 
+/* Reduced Motion Support - Respects user preferences */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-fade-in-up {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .animate-pulse-glow,
+  .animate-gradient-x,
+  .animate-bounce-subtle,
+  .animate-shimmer {
+    animation: none;
+  }
+
+  .animate-typewriter {
+    animation: none;
+    border-right: none;
+    white-space: normal;
+  }
+
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* Animation Delays */
 .animation-delay-200 {
   animation-delay: 0.2s;
@@ -149,21 +180,28 @@
     /* Minimalist color palette */
     --background: 0 0% 100%;
     --foreground: 0 0% 9%;
-    
+
     /* Subtle grays for hierarchy */
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
-    
+
     /* Primary for links and accents */
     --primary: 220 100% 50%;
     --primary-foreground: 0 0% 98%;
-    
+
     /* Semantic colors */
     --card: 0 0% 100%;
     --card-foreground: 0 0% 9%;
     --border: 0 0% 90%;
     --input: 0 0% 90%;
     --ring: 220 100% 50%;
+
+    /* Custom dark theme colors (replacing hardcoded #1C1C1C) */
+    --dark-bg: #1C1C1C;
+    --dark-text-primary: #e5e5e5;
+    --dark-text-secondary: #d4d4d4;
+    --dark-text-tertiary: #a3a3a3;
+    --dark-border: #404040;
     
     /* Typography scale */
     --text-xs: 0.75rem;
@@ -195,18 +233,29 @@
   }
 
   .dark {
-    --background: 240 10% 7%;
-    --foreground: 0 0% 95%;
-    --muted: 240 10% 12%;
-    --muted-foreground: 0 0% 65%;
-    --primary: 220 100% 60%;
+    --background: 240 10% 4%;
+    --foreground: 0 0% 90%;
+    --muted: 240 10% 8%;
+    --muted-foreground: 0 0% 55%;
+    --primary: 212 100% 60%;
     --primary-foreground: 0 0% 9%;
-    --card: 0 0% 9%;
-    --card-foreground: 0 0% 98%;
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 220 100% 60%;
+    --card: 240 8% 6%;
+    --card-foreground: 0 0% 95%;
+    --border: 240 10% 15%;
+    --input: 240 10% 15%;
+    --ring: 212 100% 60%;
+    
+    /* Custom dark theme - improved contrast */
+    --dark-bg: #0B0F14;
+    --dark-text-primary: #E6EDF3;
+    --dark-text-secondary: #8B949E;
+    --dark-text-muted: #6E7681;
+    --dark-border: #30363D;
+    --accent: 212 100% 60%;
+    --accent-hover: 212 100% 70%;
+    font-family: 'Geist Mono', 'Fira Code', monospace;
   }
+
 }
 
 @layer base {
@@ -217,7 +266,7 @@
   body {
     @apply bg-background text-foreground font-sans;
     font-feature-settings: "rlig" 1, "calt" 1;
-    background-color: #1C1C1C !important;
+    background-color: #002b36 !important;
   }
   
   html {

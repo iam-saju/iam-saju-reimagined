@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTheme } from '@/hooks/useTheme';
-import { X, Download, ExternalLink } from "lucide-react";
+import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 
 interface AIImage {
   id: string;
@@ -8,12 +9,21 @@ interface AIImage {
   url: string;
   timestamp: string;
   aspectRatio: number;
+  lightBg?: boolean;
 }
 
 const AIArchive = () => {
   const [selectedImage, setSelectedImage] = useState<AIImage | null>(null);
-  const [isLoading] = useState(false);
   const { isDarkMode, toggleTheme } = useTheme();
+
+  // Solarized colors
+  const bg = isDarkMode ? '#002b36' : '#fdf6e3';
+  const heading = isDarkMode ? '#fdf6e3' : '#073642';
+  const body = isDarkMode ? '#93a1a1' : '#586e75';
+  const muted = isDarkMode ? '#657b83' : '#93a1a1';
+  const accent = '#b58900';
+  const cardBorder = isDarkMode ? '#073642' : '#eee8d5';
+  const overlayBg = isDarkMode ? '#073642' : '#eee8d5';
 
   // Sample AI images data
   const aiImages: AIImage[] = [
@@ -22,10 +32,11 @@ const AIArchive = () => {
       title: "Neural Network Visualization",
       url: "/lovable-uploads/fbf90e6e-1606-410d-a383-8b6853f25fd2.png",
       timestamp: "nov 2024",
-      aspectRatio: 1.0
+      aspectRatio: 1.0,
+      lightBg: true,
     },
     {
-      id: "2", 
+      id: "2",
       title: "Cryptocurrency Mining",
       url: "/lovable-uploads/806e7bb0-5fc0-441b-9c05-7aaf5b382d3b.png",
       timestamp: "oct 2024",
@@ -64,7 +75,8 @@ const AIArchive = () => {
       title: "AI Generated Art",
       url: "/lovable-uploads/ChatGPT Image Jun 24, 2025, 08_08_35 PM.png",
       timestamp: "jun 2025",
-      aspectRatio: 1.0
+      aspectRatio: 1.0,
+      lightBg: true,
     }
   ];
 
@@ -86,180 +98,205 @@ const AIArchive = () => {
   };
 
   return (
-    <div className={`min-h-screen font-sans transition-colors duration-300 ${
-      isDarkMode ? 'text-white' : 'bg-background text-foreground'
-    }`} style={{ backgroundColor: isDarkMode ? '#1C1C1C' : undefined }}>
-      {/* Header */}
-      <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b transition-colors duration-300 ${
-        isDarkMode 
-          ? 'border-gray-700' 
-          : 'bg-background/80 border-border'
-      }`} style={{ backgroundColor: isDarkMode ? '#1C1C1C' : undefined }}>
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-          <a 
-            href="/" 
-            className={`text-lg font-light transition-colors ${
-              isDarkMode ? 'text-white hover:text-gray-300' : 'hover:text-primary'
-            }`}
-          >
-            ← back
-          </a>
-          <h1 className={`text-lg font-light ${isDarkMode ? 'text-white' : ''}`}>archive</h1>
-          
-          {/* Theme Toggle Button */}
-          <button
-            onClick={toggleTheme}
-            className={`p-2 rounded-lg transition-all duration-200 ${
-              isDarkMode 
-                ? 'text-gray-300 hover:text-white hover:bg-gray-800' 
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-            }`}
-            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          >
-            {isDarkMode ? (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
-              </svg>
-            ) : (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-              </svg>
-            )}
-          </button>
-        </div>
-      </header>
+    <div
+      className="min-h-screen relative"
+      style={{ backgroundColor: bg, color: body }}
+    >
+      <Navigation isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />
 
-      {/* Main Content */}
-      <main className="pt-20 pb-20">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className={`text-3xl font-light ${isDarkMode ? 'text-white' : ''}`}>archive</h2>
-              <p className={`max-w-2xl mx-auto ${isDarkMode ? 'text-gray-300' : 'text-muted-foreground'}`}>
-                where Leonardo codes, Michelangelo sculpts in zeros, and my snapshots come together in an archive of timeless records
-              </p>
-            </div>
+      <main className="relative z-10 pt-12 sm:pt-14">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 pb-12 sm:pb-16 pt-4 sm:pt-6">
+          <div className="space-y-4">
+            <h1
+              className="font-serif text-3xl sm:text-4xl md:text-[3rem] font-normal leading-[1.15] mb-5"
+              style={{ color: heading }}
+            >
+              archive.
+            </h1>
 
-            {/* Masonry Grid */}
-            <div className="masonry-grid">
+            <p
+              className="text-sm leading-relaxed"
+              style={{ fontFamily: "'Geist Mono', monospace", color: muted }}
+            >
+              where Leonardo codes, Michelangelo sculpts in zeros, and my snapshots
+              come together in an archive of timeless records.
+            </p>
+
+            {/* Image grid — responsive: 1 col on tiny, 2 cols on sm+ */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 items-start">
               {aiImages.map((image) => (
                 <div
                   key={image.id}
-                  className="masonry-item group cursor-pointer"
+                  className="group cursor-pointer transition-all duration-200"
+                  style={{
+                    backgroundColor: isDarkMode ? '#073642' : '#eee8d5',
+                    border: `1px solid ${cardBorder}`,
+                    transform: 'translateY(0)',
+                  }}
                   onClick={() => handleImageClick(image)}
+                  onMouseEnter={e => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.borderColor = accent;
+                    el.style.transform = 'translateY(-2px)';
+                    el.style.boxShadow = isDarkMode
+                      ? '0 6px 24px rgba(0,0,0,0.35)'
+                      : '0 6px 24px rgba(0,0,0,0.1)';
+                  }}
+                  onMouseLeave={e => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.borderColor = cardBorder;
+                    el.style.transform = 'translateY(0)';
+                    el.style.boxShadow = 'none';
+                  }}
                 >
-                  <div className={`relative overflow-hidden rounded-sm backdrop-blur-sm hover:shadow-lg transition-all duration-300 ${
-                    isDarkMode 
-                      ? 'bg-gray-900/50 border-gray-700' 
-                      : 'bg-card/50 border-border/50'
-                  }`}>
+                  {/* Image — square, uniform */}
+                  <div
+                    className="overflow-hidden"
+                    style={{
+                      backgroundColor: isDarkMode ? '#002b36' : '#fdf6e3',
+                      aspectRatio: '1 / 1',
+                    }}
+                  >
                     <img
                       src={image.url}
                       alt={image.title}
-                      className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                       loading="lazy"
+                      style={{
+                        filter: isDarkMode
+                          ? (image.lightBg ? 'invert(1) hue-rotate(180deg) brightness(0.85)' : 'brightness(0.85)')
+                          : 'none'
+                      }}
                     />
-                    
-                    {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all duration-300 flex items-end">
-                      <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <h3 className="text-sm font-medium mb-1">{image.title}</h3>
-                        <p className="text-xs text-gray-300">{image.timestamp}</p>
-                      </div>
-                    </div>
+                  </div>
+
+                  {/* Card info — compact, no extra space */}
+                  <div
+                    className="px-2.5 py-1.5"
+                    style={{ borderTop: `1px solid ${cardBorder}` }}
+                  >
+                    <h3
+                      className="font-serif text-base font-normal truncate"
+                      style={{ color: heading }}
+                    >
+                      {image.title}
+                    </h3>
+                    <p
+                      className="text-xs"
+                      style={{ fontFamily: "'Geist Mono', monospace", color: muted }}
+                    >
+                      {image.timestamp}
+                    </p>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Loading Placeholder */}
-            {isLoading && (
-              <div className="masonry-grid">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="masonry-item">
-                    <div className={`rounded-sm animate-pulse ${
-                      isDarkMode ? 'bg-gray-800/50' : 'bg-muted/50'
-                    }`}>
-                      <div className={`aspect-square ${
-                        isDarkMode ? 'bg-gray-700/30' : 'bg-muted/30'
-                      }`}></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Footer */}
-            <div className="text-center pt-12">
-              <p className={`text-sm italic ${isDarkMode ? 'text-gray-400' : 'text-muted-foreground'}`}>
-                More AI-generated content coming as I explore new models and techniques...
-              </p>
-            </div>
+            {/* Footer hint */}
+            <p
+              className="text-xs italic pt-8"
+              style={{
+                fontFamily: "'Geist Mono', monospace",
+                color: isDarkMode ? '#586e75' : '#93a1a1',
+              }}
+            >
+              more coming as i explore new models and techniques...
+            </p>
           </div>
         </div>
+
+        <Footer isDarkMode={isDarkMode} />
       </main>
 
       {/* Modal */}
       {selectedImage && (
-        <div 
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}
           onClick={handleCloseModal}
         >
-          <div 
-            className={`relative max-w-4xl max-h-[90vh] rounded-sm shadow-lg ${
-              isDarkMode ? 'bg-gray-900' : 'bg-card'
-            }`}
+          <div
+            className="relative w-full max-w-3xl max-h-[90vh] overflow-hidden"
+            style={{
+              backgroundColor: overlayBg,
+              border: `1px solid ${cardBorder}`,
+            }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close Button */}
+            {/* Close */}
             <button
               onClick={handleCloseModal}
-              className={`absolute top-4 right-4 z-10 p-2 backdrop-blur-sm rounded-full transition-colors ${
-                isDarkMode 
-                  ? 'bg-gray-800/80 hover:bg-gray-800 text-white' 
-                  : 'bg-background/80 hover:bg-background'
-              }`}
+              className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center transition-colors"
+              style={{
+                fontFamily: "'Geist Mono', monospace",
+                color: muted,
+                backgroundColor: `${bg}cc`,
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = heading; }}
+              onMouseLeave={e => { e.currentTarget.style.color = muted; }}
             >
-              <X className="w-4 h-4" />
+              ×
             </button>
 
             {/* Image */}
-            <div className="p-6">
+            <div className="p-2 sm:p-4">
               <img
                 src={selectedImage.url}
                 alt={selectedImage.title}
-                className="w-full h-auto max-h-[70vh] object-contain rounded-sm"
+                className="w-full h-auto max-h-[55vh] sm:max-h-[65vh] object-contain"
+                style={{
+                  filter: isDarkMode && selectedImage.lightBg
+                    ? 'invert(1) hue-rotate(180deg) brightness(0.85)'
+                    : 'none'
+                }}
               />
             </div>
 
             {/* Metadata */}
-            <div className="p-6 pt-0 space-y-4">
-              <div>
-                <h3 className={`text-xl font-medium mb-2 ${isDarkMode ? 'text-white' : ''}`}>{selectedImage.title}</h3>
-                <div className={`flex flex-wrap gap-4 text-sm ${isDarkMode ? 'text-gray-300' : 'text-muted-foreground'}`}>
-                  <span>{selectedImage.timestamp}</span>
-                </div>
+            <div
+              className="px-4 pb-4 space-y-3"
+              style={{ borderTop: `1px solid ${cardBorder}` }}
+            >
+              <div className="pt-3">
+                <h3
+                  className="text-base font-medium mb-1"
+                  style={{ fontFamily: "'Geist Mono', monospace", color: heading }}
+                >
+                  {selectedImage.title}
+                </h3>
+                <span
+                  className="text-xs"
+                  style={{ fontFamily: "'Geist Mono', monospace", color: muted }}
+                >
+                  {selectedImage.timestamp}
+                </span>
               </div>
 
               {/* Actions */}
               <div className="flex gap-3">
                 <button
                   onClick={() => handleDownload(selectedImage)}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 transition-colors text-sm"
+                  className="text-xs px-3 py-1.5 transition-colors"
+                  style={{
+                    fontFamily: "'Geist Mono', monospace",
+                    color: heading,
+                    backgroundColor: accent,
+                  }}
                 >
-                  <Download className="w-4 h-4" />
-                  Download
+                  download
                 </button>
                 <button
                   onClick={() => window.open(selectedImage.url, '_blank')}
-                  className={`flex items-center gap-2 px-4 py-2 border rounded-sm transition-colors text-sm ${
-                    isDarkMode 
-                      ? 'border-gray-700 hover:bg-gray-800 text-white' 
-                      : 'border-border hover:bg-muted'
-                  }`}
+                  className="text-xs px-3 py-1.5 transition-colors"
+                  style={{
+                    fontFamily: "'Geist Mono', monospace",
+                    color: body,
+                    border: `1px solid ${cardBorder}`,
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.color = heading; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = body; }}
                 >
-                  <ExternalLink className="w-4 h-4" />
-                  View Full Size
+                  full size →
                 </button>
               </div>
             </div>

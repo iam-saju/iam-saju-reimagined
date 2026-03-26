@@ -48,9 +48,9 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
 
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4 relative z-10">
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           <h1
-            className="font-serif text-3xl sm:text-4xl md:text-[3rem] font-normal leading-[1.15] mb-3"
+            className="font-serif text-4xl sm:text-5xl md:text-[3.5rem] font-normal leading-[1.1] mb-6"
             style={{ color: heading }}
           >
             {typedText}
@@ -67,7 +67,7 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
           </h1>
 
           <div
-            className="space-y-2 text-xs sm:text-sm leading-relaxed"
+            className="space-y-3 text-sm sm:text-base leading-relaxed"
             style={{ fontFamily: "'Geist Mono', monospace", color: body }}
           >
             <p>
@@ -83,9 +83,9 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
             </p>
           </div>
 
-          <div className="pt-2 space-y-2" style={{ fontFamily: "'Geist Mono', monospace" }}>
-            <h3 className="text-sm sm:text-base font-medium">experiments</h3>
-            <ul className="space-y-1 text-xs sm:text-sm">
+          <div className="pt-4 space-y-3" style={{ fontFamily: "'Geist Mono', monospace" }}>
+            <h3 className="text-base sm:text-lg font-medium">experiments</h3>
+            <ul className="space-y-1.5 text-sm sm:text-base">
               {[
                 { text: 'building infra marketplaces and managing compute clusters', weight: ['infra'] },
                 { text: 'exploring ml systems until they work or break', weight: ['ml'] },
@@ -110,11 +110,11 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
             </ul>
           </div>
 
-          <div className="pt-2 space-y-1" style={{ fontFamily: "'Geist Mono', monospace" }}>
-            <p className="text-xs sm:text-sm" style={{ color: muted }}>
+          <div className="pt-4 space-y-2" style={{ fontFamily: "'Geist Mono', monospace" }}>
+            <p className="text-sm" style={{ color: muted }}>
               build until it breaks. inspect the failure. repeat.
             </p>
-            <p className="text-xs sm:text-sm" style={{ color: muted }}>
+            <p className="text-sm" style={{ color: muted }}>
               <span
                 className="font-bold"
                 style={{
@@ -129,8 +129,8 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
             </p>
           </div>
 
-          <div className="pt-2" style={{ fontFamily: "'Geist Mono', monospace" }}>
-            <p className="text-xs sm:text-sm" style={{ color: body }}>
+          <div className="pt-4" style={{ fontFamily: "'Geist Mono', monospace" }}>
+            <p className="text-sm" style={{ color: body }}>
               <span style={{ fontWeight: 'bold' }}>tweets</span>{' '}
               <a
                 href="https://x.com/saju0nx"
@@ -145,11 +145,11 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
           </div>
 
           <p
-            className="text-xs italic pt-1"
+            className="text-sm italic pt-2"
             style={{ fontFamily: "'Geist Mono', monospace", color: muted }}
           >
-            <span className="hidden sm:inline">enter terminal / shift + t</span>
-            <span className="sm:hidden">enter terminal / long press</span>
+            <span className="hidden sm:inline">enter terminal for shift + t</span>
+            <span className="sm:hidden">enter terminal for long press</span>
           </p>
         </div>
       </div>

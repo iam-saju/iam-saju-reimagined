@@ -1,45 +1,53 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 export const useDonutTerminal = () => {
   const [isTerminalVisible, setIsTerminalVisible] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const isClosingRef = useRef(false);
+
+  const closeTerminal = useCallback(() => {
+    if (isClosingRef.current || !isTerminalVisible) return;
+    isClosingRef.current = true;
+    setIsClosing(true);
+
+    // Wait for close animation to finish before unmounting
+    setTimeout(() => {
+      setIsTerminalVisible(false);
+      setIsClosing(false);
+      isClosingRef.current = false;
+    }, 400);
+  }, [isTerminalVisible]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.shiftKey && event.key === 'T') {
         event.preventDefault();
-        if (!isClosingRef.current) {
-          setIsTerminalVisible(prev => !prev);
+        if (isClosingRef.current) return;
+        if (isTerminalVisible) {
+          closeTerminal();
+        } else {
+          setIsTerminalVisible(true);
         }
       }
-      
+
       if (event.key === 'Escape' && isTerminalVisible) {
         event.preventDefault();
-        if (!isClosingRef.current) {
-          closeTerminal();
-        }
+        closeTerminal();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isTerminalVisible]);
-
-  const closeTerminal = () => {
-    if (isClosingRef.current) return;
-    
-    isClosingRef.current = true;
-    setIsTerminalVisible(false);
-    
-    // Reset the closing flag after a short delay
-    setTimeout(() => {
-      isClosingRef.current = false;
-    }, 100);
-  };
+  }, [isTerminalVisible, closeTerminal]);
 
   return {
     isTerminalVisible,
+    isClosing,
     closeTerminal,
-    toggleTerminal: () => setIsTerminalVisible(prev => !prev)
+    toggleTerminal: () => {
+      if (isClosingRef.current) return;
+      if (isTerminalVisible) closeTerminal();
+      else setIsTerminalVisible(true);
+    }
   };
 };

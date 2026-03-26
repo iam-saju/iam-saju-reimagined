@@ -1,156 +1,582 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/hooks/useTheme';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
+import { posts } from '@/types/post';
+import type { Post } from '@/types/post';
+// Removed unused LayoutGrid and List imports to fix lint error
+
+
 
 const Notes = () => {
   const { isDarkMode, toggleTheme } = useTheme();
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>('grid');
+  const [activeTags, setActiveTags] = useState<string[]>([]);
+  const navigate = useNavigate();
 
-  const notes = [
-    {
-      id: 1,
-      title: "gradient descent",
-      description: "understanding the fundamental optimization algorithm behind machine learning",
-      image: "/lovable-uploads/fbf90e6e-1606-410d-a383-8b6853f25fd2.png",
-      category: "optimization",
-      learnLink: "https://harmless-bed-5d7.notion.site/gradient-descent-1fb97604c89d8054b6c0c62eba56a889"
-    },
-    {
-      id: 2,
-      title: "bitcoin server in c++",
-      description: "implementing a cryptocurrency server with utxo, merkle trees, and proof of work",
-      image: "/lovable-uploads/naka.jpeg",
-      category: "blockchain"
-    }
-  ];
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight > 0) {
+        setScrollProgress((window.scrollY / totalHeight) * 100);
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-  return (
-    <div className={`min-h-screen font-sans transition-colors duration-300 ${
-      isDarkMode ? 'text-white' : 'bg-background text-foreground'
-    }`} style={{ backgroundColor: isDarkMode ? '#1C1C1C' : undefined }}>
-      {/* Header */}
-      <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b transition-colors duration-300 ${
-        isDarkMode 
-          ? 'border-gray-700' 
-          : 'bg-background/80 border-border'
-      }`} style={{ backgroundColor: isDarkMode ? '#1C1C1C' : undefined }}>
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-          <a 
-            href="/" 
-            className={`text-lg font-light transition-colors ${
-              isDarkMode ? 'text-white hover:text-gray-300' : 'hover:text-primary'
-            }`}
-          >
-            ← back
-          </a>
-          <h1 className={`text-lg font-light ${isDarkMode ? 'text-white' : ''}`}>posts</h1>
-          
-          {/* Theme Toggle Button */}
-          <button
-            onClick={toggleTheme}
-            className={`p-2 rounded-lg transition-all duration-200 ${
-              isDarkMode 
-                ? 'text-gray-300 hover:text-white hover:bg-gray-800' 
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-            }`}
-            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          >
-            {isDarkMode ? (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
-              </svg>
-            ) : (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-              </svg>
-            )}
-          </button>
-        </div>
-      </header>
+  // Solarized palette
+  const bg = isDarkMode ? '#002b36' : '#fdf6e3';
+  const heading = isDarkMode ? '#fdf6e3' : '#073642';
+  const body = isDarkMode ? '#93a1a1' : '#586e75';
+  const muted = isDarkMode ? '#657b83' : '#93a1a1';
+  const accent = '#b58900';
+  const link = '#268bd2';
+  const green = '#859900';
+  const cardBg = isDarkMode ? '#073642' : '#eee8d5';
+  const cardBorder = isDarkMode ? '#073642' : '#eee8d5';
+  const border = cardBorder;
+  const mono = "'Geist Mono', monospace";
 
-      {/* Main Content */}
-      <main className="pt-20 pb-20">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className={`text-3xl font-light ${isDarkMode ? 'text-white' : ''}`}>technical posts & experiments</h2>
-              <p className={`max-w-2xl mx-auto ${isDarkMode ? 'text-gray-300' : 'text-muted-foreground'}`}>
-                random stuff i've written about, built, or experimented with. mostly for my own reference, 
-                but maybe useful for others too.
-              </p>
+  // ── Helper Components ──────────────────────────────────────────────────────
+  const TagPill = ({ tag, isActive, onClick }: { tag: string; isActive?: boolean; onClick?: (tag: string) => void }) => {
+    const isComingSoon = tag === 'coming soon';
+    const tangerine = '#FF8C00';
+    
+    return (
+      <span
+        onClick={(e) => {
+          if (isComingSoon || !onClick) return;
+          e.stopPropagation();
+          onClick(tag);
+        }}
+        className={`text-[10px] lowercase px-2.5 py-0.5 rounded-sm transition-all duration-200 ${
+          isComingSoon ? '' : 'cursor-pointer hover:scale-105 active:scale-95'
+        }`}
+        style={{
+          fontFamily: mono,
+          color: isComingSoon ? '#ffffff' : (isActive ? '#ffffff' : green),
+          backgroundColor: isComingSoon 
+            ? tangerine 
+            : (isActive ? green : (isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)')),
+          textAlign: isComingSoon ? 'center' : 'left',
+          fontWeight: isComingSoon || isActive ? '600' : 'normal',
+          border: isActive ? `1px solid ${green}` : 'none',
+          boxShadow: isActive ? `0 2px 8px ${green}40` : 'none',
+        }}
+      >
+        {tag}
+      </span>
+    );
+  };
+
+
+
+  // ── Post Card (Grid Style) ─────────────────────────────────────────────────
+  const PostCard = ({ post, variant = 'standard', height }: { post: Post; variant?: 'featured' | 'standard'; height?: string }) => {
+    const isFeatured = variant === 'featured';
+
+    // Overlay Layout (Used for both lead cards in grid mode)
+    if (height && layoutMode === 'grid') {
+      return (
+        <div
+          className="group cursor-pointer overflow-hidden relative rounded-lg transition-all duration-350 ease-out border"
+          style={{
+            backgroundColor: cardBg,
+            borderColor: cardBorder,
+            height: height,
+            minHeight: height,
+          }}
+          onMouseEnter={e => {
+            const el = e.currentTarget;
+            el.style.transform = 'translateY(-4px)';
+            el.style.borderColor = accent;
+            el.style.boxShadow = isDarkMode
+              ? '0 12px 40px rgba(0,0,0,0.5)'
+              : '0 10px 30px rgba(0,0,0,0.15)';
+          }}
+          onMouseLeave={e => {
+            const el = e.currentTarget;
+            el.style.transform = 'translateY(0)';
+            el.style.borderColor = cardBorder;
+            el.style.boxShadow = 'none';
+          }}
+          onClick={() => {
+            if (post.draft) return;
+            if (post.sections && post.sections.length > 0) {
+              navigate(`/posts/${post.slug}`);
+            } else if (post.link) {
+              window.open(post.link, '_blank');
+            }
+          }}
+        >
+          {/* Background Image */}
+          <div className="absolute inset-0 z-0">
+            <img
+              src={post.cardImage || post.image}
+              alt={post.title}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              style={{
+                objectPosition: post.cardImagePosition || 'center',
+                filter: isDarkMode ? 'brightness(0.7)' : 'brightness(0.9)',
+              }}
+              loading="lazy"
+            />
+            {/* Gradient Overlay */}
+            <div 
+              className="absolute inset-0 z-10"
+              style={{
+                background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0) 80%)'
+              }}
+            />
+          </div>
+
+          {/* Overlay Content */}
+          <div className="absolute inset-0 z-20 p-6 group">
+            {/* Top Meta Info - cleaner and more spread out */}
+            <div className="absolute top-4 left-4 right-4 flex items-start justify-between">
+              <div>
+                {post.draft && <TagPill tag="coming soon" />}
+              </div>
+              <div className="flex flex-wrap gap-1.5 justify-end max-w-[60%]">
+                {post.tags.slice(0, 2).map(tag => (
+                  <span
+                    key={tag}
+                    className="text-[9px] lowercase px-2 py-0.5 rounded-sm bg-black/60 text-white backdrop-blur-md border border-white/20 shadow-sm"
+                    style={{ fontFamily: mono, fontWeight: '600' }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
             </div>
 
-            {/* Netflix-style Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
-              {notes.map((note) => {
-                const CardWrapper = 'div';
-                const wrapperProps = {};
+            {/* Bottom Content Area - decoupled absolute positioning for pixel-perfect horizontal alignment */}
+            <div className="absolute inset-x-6 bottom-[58px]">
+              <div className="h-[95px] flex flex-col justify-start">
+                {/* Title */}
+                <h3
+                  className="font-serif font-normal leading-tight text-white transition-colors text-2xl md:text-3xl mb-1.5"
+                >
+                  {post.title}
+                </h3>
 
-                return (
-                  <CardWrapper key={note.id} {...wrapperProps}>
-                    <Card 
-                      className={`group cursor-pointer hover:scale-105 transition-all duration-300 hover:shadow-lg backdrop-blur-sm h-full ${
-                        isDarkMode 
-                          ? 'bg-gray-900/50 border-gray-700' 
-                          : 'bg-card/50 border-border/50'
-                      }`}
-                    >
-                      <div className="aspect-[16/9] overflow-hidden rounded-t-lg">
-                        <img 
-                          src={note.image} 
-                          alt={note.title}
-                          className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-300 ${
-                            note.id === 2 ? 'object-top' : ''
-                          }`}
-                        />
-                      </div>
-                      <CardHeader className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className={`text-xs px-2 py-1 rounded ${
-                            isDarkMode 
-                              ? 'text-gray-300 bg-gray-800' 
-                              : 'text-muted-foreground bg-muted'
-                          }`}>
-                            {note.category}
-                          </span>
-                        </div>
-                        <CardTitle className={`text-lg font-medium group-hover:text-primary transition-colors ${
-                          isDarkMode ? 'text-white' : ''
-                        }`}>
-                          {note.title}
-                        </CardTitle>
-                        <CardDescription className={`text-sm leading-relaxed ${
-                          isDarkMode ? 'text-gray-300' : ''
-                        }`}>
-                          {note.description}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-muted-foreground'}`}>
-                          {note.learnLink ? (
-                            <a 
-                              href={note.learnLink} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-primary hover:text-primary/80 transition-colors"
-                            >
-                              learn →
-                            </a>
-                          ) : "coming soon..."}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </CardWrapper>
-                );
-              })}
+                {/* Description - limited to few essential lines */}
+                <p
+                  className="leading-relaxed text-[11px] text-white/70 max-w-md line-clamp-2"
+                  style={{ fontFamily: mono }}
+                >
+                  {post.description}
+                </p>
+              </div>
             </div>
 
-            {/* Placeholder for more notes */}
-            <div className="text-center pt-12">
-              <p className={`text-sm italic ${isDarkMode ? 'text-gray-400' : 'text-muted-foreground'}`}>
-                more posts coming as i procrastinate on actual work...
-              </p>
+            {/* Bottom Meta Bar - independent bottom anchor to prevent shifting neighboring cards */}
+            <div 
+              className="absolute bottom-6 left-6 right-6 flex items-center justify-between opacity-50 text-[9px] text-white" 
+              style={{ fontFamily: mono }}
+            >
+              <div className="flex items-center gap-2">
+                <span>{post.date}</span>
+                <span>•</span>
+                <span>{post.readTime}</span>
+              </div>
+              <div>
+                {post.draft ? (
+                  <span className="opacity-80">coming soon</span>
+                ) : (
+                  <span className="text-sm transition-transform duration-300 group-hover:translate-x-1 inline-block">→</span>
+                )}
+              </div>
             </div>
           </div>
         </div>
+      );
+    }
+
+    return (
+      <div
+        className="group cursor-pointer overflow-hidden flex flex-col rounded-lg transition-all duration-350 ease-out"
+        style={{
+          backgroundColor: cardBg,
+          border: `1px solid ${cardBorder}`,
+          height: height || 'auto',
+          minHeight: height || 'auto',
+        }}
+        onMouseEnter={e => {
+          const el = e.currentTarget;
+          el.style.transform = 'translateY(-4px)';
+          el.style.borderColor = accent;
+          el.style.boxShadow = isDarkMode
+            ? '0 12px 30px rgba(0,0,0,0.4)'
+            : '0 10px 25px rgba(0,0,0,0.1)';
+        }}
+        onMouseLeave={e => {
+          const el = e.currentTarget;
+          el.style.transform = 'translateY(0)';
+          el.style.borderColor = cardBorder;
+          el.style.boxShadow = 'none';
+        }}
+        onClick={() => {
+          if (post.draft) return;
+          if (post.sections && post.sections.length > 0) {
+            navigate(`/posts/${post.slug}`);
+          } else if (post.link) {
+            window.open(post.link, '_blank');
+          }
+        }}
+      >
+        {/* Image Container — Dynamic Aspect Ratio */}
+        <div 
+          className="relative overflow-hidden bg-black/5 dark:bg-white/5"
+          style={{ 
+            aspectRatio: post.aspectRatio === 'square' ? '1/1' : 
+                         (post.aspectRatio === 'video' ? '16/9' : 
+                         (post.aspectRatio === 'natural' ? 'auto' : '16/9')) 
+          }}
+        >
+          <img
+            src={post.cardImage || post.image}
+            alt={post.title}
+            className={`w-full h-full transition-transform duration-700 group-hover:scale-110 object-${post.objectFit || 'cover'}`}
+            style={{
+              objectPosition: post.cardImagePosition || 'center',
+              transform: post.zoom ? 'scale(1.5)' : undefined,
+              filter: isDarkMode
+                ? (post.lightBg ? 'invert(1) hue-rotate(180deg) brightness(0.85)' : 'brightness(0.85)')
+                : 'none',
+            }}
+            loading="lazy"
+          />
+        </div>
+
+        {/* Content */}
+        <div className={`flex flex-col gap-3 flex-1 ${isFeatured ? 'p-5' : 'p-4'}`}>
+          <div className="space-y-2">
+            {/* Meta Row */}
+            <div className="flex items-center justify-between">
+              <span className="text-[10px]" style={{ fontFamily: mono, color: muted }}>
+                {post.date}
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {post.draft && <TagPill tag="coming soon" />}
+                {post.tags.slice(0, 2).map(tag => (
+                  <TagPill 
+                    key={tag} 
+                    tag={tag} 
+                    isActive={activeTags.includes(tag)}
+                    onClick={(t) => setActiveTags(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])} 
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Title */}
+            <h3
+              className={`font-serif font-normal leading-tight group-hover:text-[#268bd2] transition-colors ${isFeatured ? 'text-2xl' : 'text-xl'}`}
+              style={{ color: heading }}
+            >
+              {post.title}
+            </h3>
+
+            {/* Description */}
+            <p
+              className="leading-relaxed text-xs line-clamp-2"
+              style={{ fontFamily: mono, color: body }}
+            >
+              {post.description}
+            </p>
+          </div>
+
+          <div className="mt-auto pt-1 flex justify-end">
+            {post.draft ? (
+              <span className="text-[10px] opacity-40" style={{ fontFamily: mono, color: body }}>coming soon</span>
+            ) : (
+              <span 
+                className="text-xs transition-all duration-300 group-hover:translate-x-1"
+                style={{ fontFamily: mono, color: link }}
+              >
+                →
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ── List Card (Pixperk Style) ──────────────────────────────────────────────
+  const ListCard = ({ post }: { post: Post }) => {
+    return (
+      <div
+        className="group cursor-pointer flex flex-col sm:flex-row gap-6 pb-10 border-b transition-all duration-300 items-start"
+        style={{ borderColor: `${cardBorder}30` }}
+        onClick={() => {
+          if (post.draft) return;
+          if (post.sections && post.sections.length > 0) {
+            navigate(`/posts/${post.slug}`);
+          } else if (post.link) {
+            window.open(post.link, '_blank');
+          }
+        }}
+      >
+        {/* Left: Thumbnail — Dynamic Aspect Ratio */}
+        <div 
+          className="w-full sm:w-56 md:w-64 shrink-0 rounded-lg overflow-hidden relative border"
+          style={{ 
+            backgroundColor: isDarkMode ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.05)', 
+            borderColor: border,
+            aspectRatio: post.aspectRatio === 'square' ? '1/1' : 
+                         (post.aspectRatio === 'natural' ? 'auto' : '16/9')
+          }}
+        >
+          <img
+            src={post.cardImage || post.image}
+            alt={post.title}
+            className={`w-full h-full transition-transform duration-500 group-hover:scale-105 object-${post.objectFit || 'cover'}`}
+            style={{
+              objectPosition: post.cardImagePosition || 'center',
+              transform: post.zoom ? 'scale(1.5)' : undefined,
+              filter: isDarkMode
+                ? (post.lightBg ? 'invert(1) hue-rotate(180deg) brightness(0.85)' : 'brightness(0.85)')
+                : 'none',
+            }}
+            loading="lazy"
+          />
+        </div>
+
+        {/* Right: Info */}
+        <div className="flex-1 flex flex-col gap-2 pt-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px]" style={{ fontFamily: mono, color: muted }}>
+              {post.date}
+            </span>
+          </div>
+          
+          <h3
+            className="font-serif text-2xl sm:text-3xl font-normal leading-tight group-hover:text-[#268bd2] transition-colors"
+            style={{ color: heading }}
+          >
+            {post.title}
+          </h3>
+
+          <p
+            className="leading-relaxed text-sm line-clamp-2 max-w-2xl"
+            style={{ fontFamily: mono, color: body }}
+          >
+            {post.description}
+          </p>
+          
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {post.draft && <TagPill tag="coming soon" />}
+            {post.tags.map(tag => (
+              <TagPill 
+                key={tag} 
+                tag={tag} 
+                isActive={activeTags.includes(tag)}
+                onClick={(t) => setActiveTags(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])} 
+              />
+            ))}
+            
+            <div className="ml-auto">
+              {post.draft ? (
+                <span 
+                  className="text-[10px] opacity-50"
+                  style={{ fontFamily: mono, color: muted }}
+                >
+                  coming soon
+                </span>
+              ) : (
+                <span 
+                  className="text-[10px] flex items-center gap-1 transition-all duration-300 group-hover:translate-x-1"
+                  style={{ fontFamily: mono, color: link }}
+                >
+                  read <span className="text-xs">→</span>
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const featuredPost = posts.find(p => p.slug === 'gradient-descent')!;
+  const bitcoinPost = posts.find(p => p.slug === 'bitcoin-server-cpp')!;
+  const agenticPost = posts.find(p => p.slug === 'agentic-ai')!;
+
+  const allUniqueTags = Array.from(new Set(posts.flatMap(p => p.tags))).sort();
+
+  const matchesFilter = (post: Post) => {
+    if (activeTags.length === 0) return true;
+    return activeTags.some(tag => post.tags.includes(tag));
+  };
+
+  return (
+    <div
+      className="min-h-screen relative"
+      style={{ backgroundColor: bg, color: body }}
+    >
+      <Navigation isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />
+
+      {/* Scroll progress bar */}
+      <div
+        className="fixed top-0 left-0 z-[60] h-[2px]"
+        style={{
+          width: `${scrollProgress}%`,
+          backgroundColor: accent,
+          transition: 'width 0.1s linear',
+          boxShadow: scrollProgress > 0 ? `0 0 8px ${accent}60` : 'none',
+        }}
+      />
+
+      <main className="relative z-10 pt-16">
+        <div className="max-w-5xl mx-auto px-5 sm:px-8 pb-4 pt-0">
+          <div className="space-y-6">
+            {/* Header + Toggle */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-6" style={{ borderColor: 'transparent' }}>
+              <div>
+                <h1
+                  className="font-serif text-3xl sm:text-4xl md:text-[3rem] font-normal leading-tight mb-4"
+                  style={{ color: heading }}
+                >
+                  posts.
+                </h1>
+                <p
+                  className="text-[12px] sm:text-sm leading-relaxed max-w-lg"
+                  style={{ fontFamily: mono, color: muted, opacity: 0.8 }}
+                >
+                  random stuff i've written about, built, or experimented with.
+                </p>
+              </div>
+
+              {/* View Toggle */}
+              <div className="flex items-center gap-1 p-1 rounded-md self-start sm:self-auto" style={{ backgroundColor: isDarkMode ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.06)', border: `1px solid ${isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'}` }}>
+                <button
+                  onClick={() => setLayoutMode('grid')}
+                  className={`px-3 py-1 rounded text-[10px] transition-all ${layoutMode === 'grid' ? 'shadow-md' : 'opacity-40 hover:opacity-100'}`}
+                  style={{ 
+                    fontFamily: mono,
+                    backgroundColor: layoutMode === 'grid' ? (isDarkMode ? '#073642' : '#ffffff') : 'transparent',
+                    color: layoutMode === 'grid' ? heading : muted,
+                    border: layoutMode === 'grid' ? `1px solid ${isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}` : '1px solid transparent'
+                  }}
+                >
+                  grid
+                </button>
+                <button
+                  onClick={() => setLayoutMode('list')}
+                  className={`px-3 py-1 rounded text-[10px] transition-all ${layoutMode === 'list' ? 'shadow-md' : 'opacity-40 hover:opacity-100'}`}
+                  style={{ 
+                    fontFamily: mono,
+                    backgroundColor: layoutMode === 'list' ? (isDarkMode ? '#073642' : '#ffffff') : 'transparent',
+                    color: layoutMode === 'list' ? heading : muted,
+                    border: layoutMode === 'list' ? `1px solid ${isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}` : '1px solid transparent'
+                  }}
+                >
+                  list
+                </button>
+              </div>
+            </div>
+
+            {/* Tag Quick Filters */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <span className="text-[10px] opacity-40 uppercase tracking-widest pt-0.5" style={{ fontFamily: mono }}>FILTER:</span>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setActiveTags([])}
+                  className="text-[10px] lowercase px-2.5 py-0.5 rounded-sm transition-all border shadow-sm"
+                  style={{ 
+                    fontFamily: mono,
+                    color: activeTags.length === 0 ? '#ffffff' : muted,
+                    backgroundColor: activeTags.length === 0 ? accent : (isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'),
+                    borderColor: activeTags.length === 0 ? accent : `${border}20`
+                  }}
+                >
+                  all
+                </button>
+                {allUniqueTags.map(tag => (
+                  <TagPill 
+                    key={tag} 
+                    tag={tag} 
+                    isActive={activeTags.includes(tag)} 
+                    onClick={(t) => setActiveTags(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])} 
+                  />
+                ))}
+              </div>
+            </div>
+
+
+
+            {/* Layout Content */}
+            <div className="min-h-[400px]">
+              {layoutMode === 'grid' ? (
+                <div className="space-y-6">
+                  <div className="space-y-6">
+                    {/* Row 1: Bitcoin (3) & Gradient (5) */}
+                    {(matchesFilter(bitcoinPost) || matchesFilter(featuredPost)) && (
+                      <div className="grid grid-cols-1 lg:grid-cols-8 gap-6 items-start">
+                        {matchesFilter(bitcoinPost) ? (
+                          <div className="lg:col-span-3">
+                            <PostCard post={bitcoinPost} variant="standard" height="420px" />
+                          </div>
+                        ) : null}
+                        {matchesFilter(featuredPost) ? (
+                          <div className="lg:col-span-5">
+                            <PostCard post={featuredPost} variant="featured" height="420px" />
+                          </div>
+                        ) : null}
+                      </div>
+                    )}
+
+                    {/* Row 2: Agentic AI (Wide Full Row) */}
+                    {matchesFilter(agenticPost) && (
+                      <div className="grid grid-cols-1 lg:grid-cols-8 gap-6">
+                        <div className="lg:col-span-8">
+                          <PostCard post={agenticPost} variant="featured" height="320px" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Standard Grid for Remaining/Filtered standard posts */}
+                  {posts.filter(p => !['gradient-descent', 'bitcoin-server-cpp', 'agentic-ai'].includes(p.slug) && matchesFilter(p)).length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {posts.filter(p => !['gradient-descent', 'bitcoin-server-cpp', 'agentic-ai'].includes(p.slug) && matchesFilter(p)).map(post => (
+                        <div key={post.slug}>
+                          <PostCard post={post} variant="standard" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {posts.filter(p => matchesFilter(p)).length === 0 && (
+                    <div className="py-20 text-center opacity-40" style={{ fontFamily: mono }}>
+                      no posts found for this filter combination.
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-1">
+                  {posts.filter(p => matchesFilter(p)).map(post => (
+                    <ListCard key={post.slug} post={post} />
+                  ))}
+                  {posts.filter(p => matchesFilter(p)).length === 0 && (
+                    <div className="py-20 text-center opacity-40" style={{ fontFamily: mono }}>
+                      no posts found for this filter combination.
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+
+          </div>
+        </div>
+
+        <Footer isDarkMode={isDarkMode} />
       </main>
     </div>
   );

@@ -177,9 +177,9 @@
 
 @layer base {
   :root {
-    /* Minimalist color palette */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 9%;
+    /* Solarized Light palette */
+    --background: 44 87% 94%;
+    --foreground: 196 13% 45%;
 
     /* Subtle grays for hierarchy */
     --muted: 0 0% 96%;
@@ -233,24 +233,25 @@
   }
 
   .dark {
-    --background: 240 10% 4%;
-    --foreground: 0 0% 90%;
-    --muted: 240 10% 8%;
-    --muted-foreground: 0 0% 55%;
+    /* Solarized Dark palette */
+    --background: 193 100% 11%;
+    --foreground: 186 9% 55%;
+    --muted: 193 100% 8%;
+    --muted-foreground: 186 9% 45%;
     --primary: 212 100% 60%;
     --primary-foreground: 0 0% 9%;
-    --card: 240 8% 6%;
-    --card-foreground: 0 0% 95%;
-    --border: 240 10% 15%;
-    --input: 240 10% 15%;
+    --card: 193 100% 14%;
+    --card-foreground: 186 9% 65%;
+    --border: 193 100% 20%;
+    --input: 193 100% 20%;
     --ring: 212 100% 60%;
     
-    /* Custom dark theme - improved contrast */
-    --dark-bg: #0B0F14;
-    --dark-text-primary: #E6EDF3;
-    --dark-text-secondary: #8B949E;
-    --dark-text-muted: #6E7681;
-    --dark-border: #30363D;
+    /* Legacy dark variables for compatibility */
+    --dark-bg: #002b36;
+    --dark-text-primary: #839496;
+    --dark-text-secondary: #657b83;
+    --dark-text-muted: #586e75;
+    --dark-border: #073642;
     --accent: 212 100% 60%;
     --accent-hover: 212 100% 70%;
     font-family: 'Geist Mono', 'Fira Code', monospace;
@@ -266,7 +267,7 @@
   body {
     @apply bg-background text-foreground font-sans;
     font-feature-settings: "rlig" 1, "calt" 1;
-    background-color: #002b36 !important;
+    transition: background-color 0.5s ease, color 0.5s ease;
   }
   
   html {

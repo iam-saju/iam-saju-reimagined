@@ -10,12 +10,10 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
   const body = isDarkMode ? '#8B949E' : '#586e75';
   const muted = isDarkMode ? '#6E7681' : '#93a1a1';
   const bright = isDarkMode ? '#E6EDF3' : '#073642';
-  const accent = '#00FF9C';
 
   const [typedText, setTypedText] = useState('');
-  const [showCursor, setShowCursor] = useState(true);
-  const fullText = 'hey.';
-
+  const [showCursor] = useState(true);
+  const fullText = 'hey';
   useEffect(() => {
     let i = 0;
     const delay = setTimeout(() => {
@@ -25,7 +23,7 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
           i++;
         } else {
           clearInterval(interval);
-          setTimeout(() => setShowCursor(false), 2000);
+          // Removed setTimeout(() => setShowCursor(false), 2000) to make cursor blink indefinitely
         }
       }, 150);
       return () => clearInterval(interval);
@@ -46,7 +44,7 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
         <HeroDonut />
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4 relative z-10">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4 pt-20 sm:pt-4 relative z-10">
 
         <div className="space-y-6">
           <h1
@@ -55,13 +53,12 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
           >
             {typedText}
             {showCursor && (
-              <span style={{
-                animation: 'cursor-blink 0.8s step-end infinite',
-                color: accent,
-                fontWeight: 400,
-                marginLeft: '2px',
+              <span className="inline-block ml-1 animate-pulse" style={{
+                color: '#cb4b16',
+                fontWeight: 600,
+                animation: 'cursor-blink 1.0s step-end infinite',
               }}>
-                _
+                |
               </span>
             )}
           </h1>

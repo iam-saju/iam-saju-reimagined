@@ -122,7 +122,7 @@ const HeroDonut = ({ accentColor }: HeroDonutProps) => {
             ref={preRef}
             style={{
                 fontFamily: "'Geist Mono', 'SF Mono', 'Fira Code', Consolas, monospace",
-                fontSize: 'clamp(4px, 0.7vw, 10px)',
+                fontSize: 'clamp(8px, 1.5vw, 12px)',
                 lineHeight: 1.0,
                 letterSpacing: '0.04em',
                 userSelect: 'none',

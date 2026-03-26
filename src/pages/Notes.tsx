@@ -432,7 +432,7 @@ const Notes = () => {
         }}
       />
 
-      <main className="relative z-10 pt-16">
+      <main className="relative z-10 pt-8 sm:pt-16">
         <div className="max-w-5xl mx-auto px-5 sm:px-8 pb-4 pt-0">
           <div className="space-y-6">
             {/* Header + Toggle */}

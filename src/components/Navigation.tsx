@@ -125,6 +125,16 @@ const Navigation = ({ isDarkMode = true, onToggleTheme }: NavigationProps) => {
 
         {/* Right Section: Mobile Toggle (optional) + Theme + Lambda */}
         <div className="flex-1 flex justify-end items-center gap-3">
+          {/* Terminal Toggle (λ) */}
+          <button 
+            onClick={() => window.dispatchEvent(new CustomEvent('toggle-terminal'))}
+            className="p-1.5 rounded-md transition-all duration-200 flex items-center justify-center border hover:bg-orange-500/10 lg:hidden" 
+            style={{ color: '#cb4b16', borderColor: `#cb4b16` + '40' }}
+            title="Open Terminal (shift + t)"
+          >
+            <span className="text-sm font-bold">λ</span>
+          </button>
+
           {/* Theme Toggle */}
           <button 
             onClick={onToggleTheme} 
@@ -147,7 +157,6 @@ const Navigation = ({ isDarkMode = true, onToggleTheme }: NavigationProps) => {
           <div className="sm:hidden flex items-center gap-4 ml-2">
              <a href="/posts" className="text-xs font-medium" style={{ color: linkColor }}>posts</a>
              <a href="/archive" className="text-xs font-medium" style={{ color: linkColor }}>archive</a>
-             <a href="https://github.com/iam-saju" target="_blank" rel="noopener noreferrer" className="text-xs font-medium" style={{ color: linkColor }}>github</a>
           </div>
         </div>
       </div>

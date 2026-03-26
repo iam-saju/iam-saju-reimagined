@@ -1,114 +1,156 @@
 import { useState, useEffect } from 'react';
-import { useGlobalDonut } from '@/hooks/useGlobalDonut';
-import { DonutAnimation } from './DonutAnimation';
-
-interface DonutSettings {
-  size: 'small' | 'medium' | 'large';
-  speed: number;
-  opacity: number;
-  color: string;
-  paused: boolean;
-}
+import HeroDonut from './HeroDonut';
 
 interface HeroProps {
   isDarkMode?: boolean;
 }
 
-const Hero = ({ isDarkMode = false }: HeroProps) => {
-  const { globalState, subscribe } = useGlobalDonut();
-  const [donutSettings, setDonutSettings] = useState<DonutSettings>({
-    size: 'medium',
-    speed: globalState.speed,
-    opacity: 30,
-    color: '#4a9eff',
-    paused: !globalState.isRunning
-  });
+const Hero = ({ isDarkMode = true }: HeroProps) => {
+  const heading = isDarkMode ? '#E6EDF3' : '#073642';
+  const body = isDarkMode ? '#8B949E' : '#586e75';
+  const muted = isDarkMode ? '#6E7681' : '#93a1a1';
+  const bright = isDarkMode ? '#E6EDF3' : '#073642';
+  const accent = '#00FF9C';
 
-  // Subscribe to global donut state changes
+  const [typedText, setTypedText] = useState('');
+  const [showCursor, setShowCursor] = useState(true);
+  const fullText = 'hey.';
+
   useEffect(() => {
-    const unsubscribe = subscribe(() => {
-      setDonutSettings(prev => ({
-        ...prev,
-        speed: globalState.speed,
-        paused: !globalState.isRunning
-      }));
-    });
-
-    return unsubscribe;
-  }, [globalState, subscribe]);
+    let i = 0;
+    const delay = setTimeout(() => {
+      const interval = setInterval(() => {
+        if (i < fullText.length) {
+          setTypedText(fullText.slice(0, i + 1));
+          i++;
+        } else {
+          clearInterval(interval);
+          setTimeout(() => setShowCursor(false), 2000);
+        }
+      }, 150);
+      return () => clearInterval(interval);
+    }, 300);
+    return () => clearTimeout(delay);
+  }, []);
 
   return (
-    <section id="about" className="min-h-screen flex items-center justify-start relative overflow-hidden">
-      {/* Donut Animation Background - Connected to Global State */}
-      <DonutAnimation 
-        settings={donutSettings}
-        isVisible={false}
-      />
-      
-      {/* Hero Content */}
-      <div className="max-w-4xl mx-auto px-6 pt-10 relative z-10">
-        <div className="space-y-4">
-          <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-foreground'}`}>
-            hey.
-          </h1>
-          
-          <div className={`space-y-2 text-base leading-relaxed max-w-3xl ${
-            isDarkMode ? 'text-gray-200' : 'text-foreground'
-          }`}>
-            <p>
-              i'm <span className="font-bold">saju</span>. :)
-            </p>
-            
-            <p>
-              undergrad in ai & data science. i build random stuff — from a gpu marketplace to a c++ blockchain — mostly to see if it works (or breaks).
-            </p>
-            
-            <p>
-              i like tearing tech apart — raw-socket http, ml theories, weird opencv hacks.
-            </p>
-            
-            <p>
-              built qubit to hack Telegram into serving as cloud storage.
-            </p>
-            <br>
-            </br>
-            
-            <div className="space-y-2 my-12">
-              <h3 className={`text-lg font-medium ${isDarkMode ? 'text-gray-100' : 'text-foreground'} mb-1`}>experiments</h3>
-              <ul className={`space-y-0.5 ${isDarkMode ? 'text-gray-300' : 'text-muted-foreground'}`}>
-                <li>• gpu marketplaces & cluster management</li>
-                <li>• messing with ml theories until they click (or break)</li>
-                <li>• blockchain protocols for fun</li>
-                <li>• writing servers & protocols just to see how deep it goes</li>
-              </ul>
-            </div>
+    <section id="about" className="flex-1 relative flex items-center justify-center font-serif overflow-hidden">
+      <style>{`
+        @keyframes cursor-blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+      `}</style>
 
-            <br></br>
-            
-            <div className="space-y-2 my-12">
-              <h3 className={`text-lg font-medium ${isDarkMode ? 'text-gray-100' : 'text-foreground'}`}>philosophy</h3>
-              <p className={isDarkMode ? 'text-gray-300' : 'text-muted-foreground'}>
-              break it, poke it, twist it, see what happens, rebuild it—or don’t.              </p>
-              <p className={isDarkMode ? 'text-gray-300' : 'text-muted-foreground'}>
-                <span className='font-bold bg-gradient-to-r from-red-900 to-red-600 bg-clip-text text-transparent'>manchester united </span>forever.
-              </p>
-            </div>
-            
-            <p className="mt-8">
-              tweets : <a 
-                href="https://x.com/saju0nx" 
-                target="_blank" 
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ overflow: 'visible', zIndex: 0 }}>
+        <HeroDonut />
+      </div>
+
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4 relative z-10">
+
+        <div className="space-y-4">
+          <h1
+            className="font-serif text-3xl sm:text-4xl md:text-[3rem] font-normal leading-[1.15] mb-3"
+            style={{ color: heading }}
+          >
+            {typedText}
+            {showCursor && (
+              <span style={{
+                animation: 'cursor-blink 0.8s step-end infinite',
+                color: accent,
+                fontWeight: 400,
+                marginLeft: '2px',
+              }}>
+                _
+              </span>
+            )}
+          </h1>
+
+          <div
+            className="space-y-2 text-xs sm:text-sm leading-relaxed"
+            style={{ fontFamily: "'Geist Mono', monospace", color: body }}
+          >
+            <p>
+              i'm <span style={{ color: bright, fontWeight: 600 }}>saju</span>. :)
+            </p>
+
+            <p>
+              building <span style={{ fontWeight: 'bold' }}>compute systems</span> and pushing them until they fail.
+            </p>
+
+            <p style={{ color: muted }}>
+              currently exploring <span style={{ fontWeight: 'bold' }}>gpu infrastructure</span>, <span style={{ fontWeight: 'bold' }}>distributed systems</span>, and how <span style={{ fontWeight: 'bold' }}>ml systems</span> behave under stress.
+            </p>
+          </div>
+
+          <div className="pt-2 space-y-2" style={{ fontFamily: "'Geist Mono', monospace" }}>
+            <h3 className="text-sm sm:text-base font-medium">experiments</h3>
+            <ul className="space-y-1 text-xs sm:text-sm">
+              {[
+                { text: 'building infra marketplaces and managing compute clusters', weight: ['infra'] },
+                { text: 'exploring ml systems until they work or break', weight: ['ml'] },
+                { text: 'experimenting with blockchain protocols', weight: ['blockchain'] },
+                { text: 'writing servers and protocols from scratch', weight: ['servers', 'protocols'] },
+              ].map((item, i) => (
+                <li key={i}>
+                  •{' '}
+                  <a href="/posts" className="transition-colors hover:underline">
+                    {item.text.split(' ').map((word, j) => {
+                      const cleanWord = word.replace(/[^a-zA-Z]/g, '').toLowerCase();
+                      const isWeight = item.weight.some(w => cleanWord === w.toLowerCase());
+                      return (
+                        <span key={j} style={isWeight ? { fontWeight: 'bold' } : undefined}>
+                          {word}{' '}
+                        </span>
+                      );
+                    })}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="pt-2 space-y-1" style={{ fontFamily: "'Geist Mono', monospace" }}>
+            <p className="text-xs sm:text-sm" style={{ color: muted }}>
+              build until it breaks. inspect the failure. repeat.
+            </p>
+            <p className="text-xs sm:text-sm" style={{ color: muted }}>
+              <span
+                className="font-bold"
+                style={{
+                  background: 'linear-gradient(to right, #dc322f, #cb4b16)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                manchester united
+              </span>
+              , always.
+            </p>
+          </div>
+
+          <div className="pt-2" style={{ fontFamily: "'Geist Mono', monospace" }}>
+            <p className="text-xs sm:text-sm" style={{ color: body }}>
+              <span style={{ fontWeight: 'bold' }}>tweets</span>{' '}
+              <a
+                href="https://x.com/saju0nx"
+                target="_blank"
                 rel="noopener noreferrer"
-                className={`${isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'text-primary hover:text-primary/80'} hover:underline`}
+                style={{ color: '#00BFFF' }}
+                className="hover:underline underline-offset-4"
               >
                 @saju0nx
               </a>
             </p>
-            <br></br>
-            <p className={`text-xs italic ${isDarkMode ? 'text-gray-400' : 'text-muted-foreground'}`}>
-              shift+t to enter the donut terminal
-            </p>
           </div>
+
+          <p
+            className="text-xs italic pt-1"
+            style={{ fontFamily: "'Geist Mono', monospace", color: muted }}
+          >
+            <span className="hidden sm:inline">enter terminal / shift + t</span>
+            <span className="sm:hidden">enter terminal / long press</span>
+          </p>
         </div>
       </div>
     </section>

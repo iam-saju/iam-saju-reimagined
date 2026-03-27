@@ -7,6 +7,7 @@ interface UploadFile {
   preview: string;
   title: string;
   caption: string;
+  aspectRatio?: number;
   progress: number;
   status: 'pending' | 'uploading' | 'success' | 'error';
   error?: string;
@@ -18,6 +19,7 @@ interface ExistingArchiveItem {
   caption?: string;
   url: string;
   timestamp?: string;
+  aspectRatio?: number;
   mediaType?: 'image' | 'video';
 }
 
@@ -77,6 +79,48 @@ const ArchiveUpload = () => {
     });
   }, []);
 
+  const getFileAspectRatio = useCallback((file: File): Promise<number | undefined> => {
+    const objectUrl = URL.createObjectURL(file);
+
+    return new Promise((resolve) => {
+      const cleanupAndResolve = (value?: number) => {
+        URL.revokeObjectURL(objectUrl);
+        resolve(value);
+      };
+
+      if (ALLOWED_TYPES.image.includes(file.type as typeof ALLOWED_TYPES.image[number])) {
+        const image = new window.Image();
+        image.onload = () => {
+          if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+            cleanupAndResolve(image.naturalWidth / image.naturalHeight);
+            return;
+          }
+          cleanupAndResolve(undefined);
+        };
+        image.onerror = () => cleanupAndResolve(undefined);
+        image.src = objectUrl;
+        return;
+      }
+
+      if (ALLOWED_TYPES.video.includes(file.type as typeof ALLOWED_TYPES.video[number])) {
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        video.onloadedmetadata = () => {
+          if (video.videoWidth > 0 && video.videoHeight > 0) {
+            cleanupAndResolve(video.videoWidth / video.videoHeight);
+            return;
+          }
+          cleanupAndResolve(undefined);
+        };
+        video.onerror = () => cleanupAndResolve(undefined);
+        video.src = objectUrl;
+        return;
+      }
+
+      cleanupAndResolve(undefined);
+    });
+  }, []);
+
   useEffect(() => {
     let isCancelled = false;
     const controller = new AbortController();
@@ -133,6 +177,7 @@ const ArchiveUpload = () => {
           caption: typeof item.caption === 'string' ? item.caption : '',
           url,
           timestamp: typeof item.timestamp === 'string' ? item.timestamp : '',
+          aspectRatio: typeof item.aspectRatio === 'number' && item.aspectRatio > 0 ? item.aspectRatio : undefined,
           mediaType: item.mediaType === 'video' ? 'video' : 'image',
         } satisfies ExistingArchiveItem];
       });
@@ -174,19 +219,21 @@ const ArchiveUpload = () => {
       }
 
       const preview = await createPreview(file);
+      const aspectRatio = await getFileAspectRatio(file);
       newFiles.push({
         id: Math.random().toString(36).substr(2, 9),
         file,
         preview,
         title: createDefaultTitle(file.name),
         caption: '',
+        aspectRatio,
         progress: 0,
         status: 'pending'
       });
     }
 
     setFiles(prev => [...prev, ...newFiles]);
-  }, [createPreview, validateFile]);
+  }, [createPreview, getFileAspectRatio, validateFile]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -266,6 +313,9 @@ const ArchiveUpload = () => {
     formData.append('file', uploadFile.file);
     formData.append('title', uploadFile.title.trim());
     formData.append('caption', uploadFile.caption.trim());
+    if (uploadFile.aspectRatio && Number.isFinite(uploadFile.aspectRatio) && uploadFile.aspectRatio > 0) {
+      formData.append('aspectRatio', String(uploadFile.aspectRatio));
+    }
 
     // Generate unique filename with timestamp
     const timestamp = Date.now();

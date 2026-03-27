@@ -154,18 +154,20 @@ const Notes = () => {
             </div>
 
             {/* Bottom Content Area - decoupled absolute positioning for pixel-perfect horizontal alignment */}
-            <div className="absolute inset-x-6 bottom-[58px]">
-              <div className="h-[95px] flex flex-col justify-start">
+            <div className="absolute inset-x-6 bottom-[48px]">
+              <div className="flex flex-col justify-end">
                 {/* Title */}
-                <h3
-                  className="font-serif font-normal leading-tight text-white transition-colors text-2xl md:text-3xl mb-1.5"
-                >
-                  {post.title}
-                </h3>
+                <div className="h-[64px] md:h-[72px] flex flex-col justify-end">
+                  <h3
+                    className="font-serif font-normal leading-tight text-white transition-colors text-2xl md:text-3xl line-clamp-2"
+                  >
+                    {post.title}
+                  </h3>
+                </div>
 
                 {/* Description - limited to few essential lines */}
                 <p
-                  className="leading-relaxed text-[11px] text-white/70 max-w-md line-clamp-2"
+                  className="leading-relaxed text-[11px] text-white/70 max-w-md line-clamp-2 mt-2"
                   style={{ fontFamily: mono }}
                 >
                   {post.description}
@@ -253,8 +255,8 @@ const Notes = () => {
         </div>
 
         {/* Content */}
-        <div className={`flex flex-col gap-3 flex-1 ${isFeatured ? 'p-5' : 'p-4'}`}>
-          <div className="space-y-2">
+        <div className={`flex flex-col gap-2 flex-1 ${isFeatured ? 'p-5' : 'p-4'}`}>
+          <div className="space-y-1">
             {/* Meta Row */}
             <div className="flex items-center justify-between">
               <span className="text-[10px]" style={{ fontFamily: mono, color: muted }}>
@@ -275,7 +277,7 @@ const Notes = () => {
 
             {/* Title */}
             <h3
-              className={`font-serif font-normal leading-tight group-hover:text-[#268bd2] transition-colors ${isFeatured ? 'text-2xl' : 'text-xl'}`}
+              className={`font-serif font-normal leading-tight group-hover:text-[#268bd2] transition-colors mb-1.5 ${isFeatured ? 'text-2xl' : 'text-xl'}`}
               style={{ color: heading }}
             >
               {post.title}
@@ -348,7 +350,7 @@ const Notes = () => {
         </div>
 
         {/* Right: Info */}
-        <div className="flex-1 flex flex-col gap-2 pt-1">
+        <div className="flex-1 flex flex-col gap-1 pt-1">
           <div className="flex items-center justify-between">
             <span className="text-[10px]" style={{ fontFamily: mono, color: muted }}>
               {post.date}
@@ -356,7 +358,7 @@ const Notes = () => {
           </div>
           
           <h3
-            className="font-serif text-2xl sm:text-3xl font-normal leading-tight group-hover:text-[#268bd2] transition-colors"
+            className="font-serif text-2xl sm:text-3xl font-normal leading-tight group-hover:text-[#268bd2] transition-colors mb-2"
             style={{ color: heading }}
           >
             {post.title}
@@ -406,6 +408,7 @@ const Notes = () => {
   const featuredPost = posts.find(p => p.slug === 'gradient-descent')!;
   const bitcoinPost = posts.find(p => p.slug === 'bitcoin-server-cpp')!;
   const agenticPost = posts.find(p => p.slug === 'agentic-ai')!;
+  const langchainPost = posts.find(p => p.slug === 'langchain-basics')!;
 
   const allUniqueTags = Array.from(new Set(posts.flatMap(p => p.tags))).sort();
 
@@ -517,7 +520,7 @@ const Notes = () => {
                   <div className="space-y-6">
                     {/* Row 1: Bitcoin (3) & Gradient (5) */}
                     {(matchesFilter(bitcoinPost) || matchesFilter(featuredPost)) && (
-                      <div className="grid grid-cols-1 lg:grid-cols-8 gap-6 items-start">
+                      <div className="grid grid-cols-1 lg:grid-cols-8 gap-6">
                         {matchesFilter(bitcoinPost) ? (
                           <div className="lg:col-span-3">
                             <PostCard post={bitcoinPost} variant="standard" height="420px" />
@@ -531,20 +534,27 @@ const Notes = () => {
                       </div>
                     )}
 
-                    {/* Row 2: Agentic AI (Wide Full Row) */}
-                    {matchesFilter(agenticPost) && (
-                      <div className="grid grid-cols-1 lg:grid-cols-8 gap-6">
-                        <div className="lg:col-span-8">
-                          <PostCard post={agenticPost} variant="featured" height="320px" />
-                        </div>
+                    {/* Row 2: Agentic AI (3/5) & Langchain (2/5) */}
+                    {(matchesFilter(agenticPost) || (langchainPost && matchesFilter(langchainPost))) && (
+                      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                        {matchesFilter(agenticPost) ? (
+                          <div className="lg:col-span-3">
+                            <PostCard post={agenticPost} variant="featured" height="420px" />
+                          </div>
+                        ) : null}
+                        {langchainPost && matchesFilter(langchainPost) ? (
+                          <div className="lg:col-span-2">
+                            <PostCard post={langchainPost} variant="standard" height="420px" />
+                          </div>
+                        ) : null}
                       </div>
                     )}
                   </div>
 
                   {/* Standard Grid for Remaining/Filtered standard posts */}
-                  {posts.filter(p => !['gradient-descent', 'bitcoin-server-cpp', 'agentic-ai'].includes(p.slug) && matchesFilter(p)).length > 0 && (
+                  {posts.filter(p => !['gradient-descent', 'bitcoin-server-cpp', 'agentic-ai', 'langchain-basics'].includes(p.slug) && matchesFilter(p)).length > 0 && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {posts.filter(p => !['gradient-descent', 'bitcoin-server-cpp', 'agentic-ai'].includes(p.slug) && matchesFilter(p)).map(post => (
+                      {posts.filter(p => !['gradient-descent', 'bitcoin-server-cpp', 'agentic-ai', 'langchain-basics'].includes(p.slug) && matchesFilter(p)).map(post => (
                         <div key={post.slug}>
                           <PostCard post={post} variant="standard" />
                         </div>

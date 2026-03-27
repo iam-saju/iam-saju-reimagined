@@ -39,7 +39,7 @@ export const posts: Post[] = [
     cardImagePosition: 'center',
     zoom: false,
     lightBg: true,
-    tags: ['optimization', 'ml', 'math'],
+    tags: ['ml', 'math'],
     date: 'nov 2024',
     readTime: '5 min read',
     aspectRatio: 'natural',
@@ -96,7 +96,7 @@ def gradient_descent(x, y, learning_rate=0.01, epochs=1000):
     description:
       'implementing a cryptocurrency server from scratch — utxo model, merkle trees, sha-256 hashing, and proof-of-work consensus. the full nakamoto stack.',
     image: '/lovable-uploads/naka.jpeg',
-    tags: ['blockchain', 'c++', 'systems'],
+    tags: ['blockchain', 'c++'],
     date: 'dec 2024',
     readTime: '8 min read',
     draft: true,
@@ -114,10 +114,69 @@ def gradient_descent(x, y, learning_rate=0.01, epochs=1000):
     imagePosition: 'center',
     cardImagePosition: 'center',
     lightBg: true,
-    tags: ['ai', 'agents', 'architecture'],
+    tags: ['ai', 'agents'],
     date: 'mar 2024',
-    readTime: '0 min read',
+    readTime: '4 min read',
     draft: true,
     sections: [],
+  },
+  {
+    slug: 'langchain-basics',
+    title: 'LangChain 101',
+    description:
+      'from simple prompts to real LLM-powered applications',
+    image: '/lovable-uploads/langchain-basics.jpg',
+    cardImage: '/lovable-uploads/langchain-basics.jpg',
+    imagePosition: 'center',
+    cardImagePosition: 'center',
+    lightBg: true,
+    tags: ['ai', 'python'],
+    date: 'mar 2024',
+    readTime: '5 min read',
+    draft: false,
+    sections: [
+      {
+        id: 'ai-lego',
+        heading: 'the ai lego set',
+        body: `so you've got this powerful brain (the llm), but it's basically sitting in a dark room with no windows. langchain is the toolkit that gives it a mailbox, a telephone, and a set of instructions.\n\nit's less about the 'ai' itself and more about the 'plumbing' that connects your ai to the real world. think of it as building with lego bricks: one brick is your model, another is your data, and langchain is the baseplate that holds them all together.`,
+      },
+      {
+        id: 'prompt-templates',
+        heading: 'blueprints for prompts',
+        body: `instead of manually typing out long instructions every time, we use prompt templates. think of it like 'mad-libs' for ai. you define the structure once, and langchain swaps in the variables on the fly.\n\nthis makes your app way more reliable because you aren't relying on strings you typed into a chat box — you're using a reusable blueprint.`,
+        code: `from langchain_core.prompts import PromptTemplate
+
+template = "You are a helpful assistant that explains {topic} to a 5-year-old."
+prompt = PromptTemplate.from_template(template)
+
+# Just swap in the topic!
+formatted_prompt = prompt.format(topic="quantum physics")`,
+      },
+      {
+        id: 'lcel-pipe',
+        heading: "let's talk about the pipe (|)",
+        body: `this is where the magic happens. using langchain expression language (lcel), we can chain components together like literal pipes. the output of your prompt flows into the model, and the model's output flows into a parser.\n\nit looks clean, it's fast, and it makes complex logic feel like a simple assembly line.`,
+        code: `# The modern way to chain
+chain = prompt | model | output_parser
+
+# It just works!
+response = chain.invoke({"topic": "black holes"})`,
+      },
+      {
+        id: 'ai-memory',
+        heading: 'wait, what was i saying?',
+        body: `llms are naturally forgetful. they treat every message as if it's the first time they've ever met you. memory components in langchain allow the model to 'remember' the last few messages.\n\nthis is how you build chat bots that actually feel human and can refer back to things you said five minutes ago without you having to repeat yourself.`,
+      },
+      {
+        id: 'agents-tools',
+        heading: 'giving the ai a toolbelt',
+        body: `agents are the 'final boss' of langchain. instead of following a fixed path, an agent looks at a goal and decides which 'tool' to use — like searching google, checking a database, or running a calculator.\n\nit's the difference between a scripted robot that only says one thing and a thinking assistant that can actually solve problems for you.`,
+        code: `# Concept of an Agent
+agent = create_tool_calling_agent(llm, tools, prompt)
+agent_executor = AgentExecutor(agent=agent, tools=tools)
+
+agent_executor.invoke({"input": "What is the price of Bitcoin and how much would 0.5 BTC cost?"})`,
+      },
+    ],
   },
 ];

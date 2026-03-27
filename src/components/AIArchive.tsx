@@ -181,7 +181,7 @@ const getVisibleCaption = (item: AIImage) => {
 };
 
 const AIArchive = () => {
-  const archiveApiBase = import.meta.env.VITE_UPLOAD_API_URL || 'http://localhost:3001';
+  const archiveApiBase = import.meta.env.VITE_UPLOAD_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
   const [selectedImage, setSelectedImage] = useState<AIImage | null>(null);
   const [uploadedImages, setUploadedImages] = useState<AIImage[]>([]);
   const [scrollProgress, setScrollProgress] = useState(0);

@@ -29,7 +29,7 @@ const ALLOWED_TYPES = {
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
 const ArchiveUpload = () => {
-  const uploadApiBase = import.meta.env.VITE_UPLOAD_API_URL || 'http://localhost:3001';
+  const uploadApiBase = import.meta.env.VITE_UPLOAD_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
   const defaultAuthToken = `Bearer ${((import.meta.env.VITE_ARCHIVE_ADMIN_KEY as string | undefined)?.trim() || 'leonardo_michelangelo_2025')}`;
   const [files, setFiles] = useState<UploadFile[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -301,7 +301,9 @@ const ArchiveUpload = () => {
         setExistingItems((prev) => [successData.item!, ...prev.filter((item) => item.id !== successData.item!.id)]);
       }
     } catch (error) {
-      const fallbackError = `Cannot reach upload server at ${uploadApiBase}. Start it with: node server.cjs`;
+      const fallbackError = import.meta.env.DEV
+        ? `Cannot reach upload server at ${uploadApiBase}. Start it with: node server.cjs`
+        : `Cannot reach upload API at ${uploadApiBase || 'this domain'}. Check Netlify Functions and env vars.`;
       const normalizedError = error instanceof TypeError
         ? fallbackError
         : (error instanceof Error ? error.message : 'Upload failed');
@@ -376,7 +378,15 @@ const ArchiveUpload = () => {
           <div className="space-y-8">
             {isApiReachable === false ? (
               <div className="border border-red-400/40 bg-red-500/5 rounded-sm px-4 py-3 text-sm text-red-500 break-words">
-                upload api is offline at <code className="font-mono">{uploadApiBase}</code>. run <code className="font-mono">node server.cjs</code> from the project root.
+                {import.meta.env.DEV ? (
+                  <>
+                    upload api is offline at <code className="font-mono">{uploadApiBase}</code>. run <code className="font-mono">node server.cjs</code> from the project root.
+                  </>
+                ) : (
+                  <>
+                    upload api is offline at <code className="font-mono">{uploadApiBase || 'this domain'}</code>. verify Netlify Functions deployment and <code className="font-mono">ARCHIVE_ADMIN_KEY</code> env variable.
+                  </>
+                )}
               </div>
             ) : null}
 

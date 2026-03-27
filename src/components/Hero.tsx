@@ -142,11 +142,10 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
           </div>
 
           <p
-            className="text-sm italic pt-2"
+            className="hidden lg:block text-sm italic pt-2"
             style={{ fontFamily: "'Geist Mono', monospace", color: muted }}
           >
-            <span className="hidden sm:inline">enter terminal for shift + t</span>
-            <span className="sm:hidden">enter terminal for long press</span>
+            enter terminal for shift + t
           </p>
         </div>
       </div>

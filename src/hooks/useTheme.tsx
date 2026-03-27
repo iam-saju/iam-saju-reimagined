@@ -2,17 +2,32 @@ import { useState, useEffect } from 'react';
 
 const THEME_KEY = 'theme-preference';
 
+const getInitialTheme = (): boolean => {
+  if (typeof window === 'undefined') return false;
+
+  try {
+    const saved = window.localStorage.getItem(THEME_KEY);
+    if (!saved) return false;
+    const parsed = JSON.parse(saved);
+    return typeof parsed === 'boolean' ? parsed : false;
+  } catch {
+    return false;
+  }
+};
+
 export const useTheme = () => {
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Check localStorage for saved preference
-    const saved = localStorage.getItem(THEME_KEY);
-    return saved ? JSON.parse(saved) : false;
-  });
+  const [isDarkMode, setIsDarkMode] = useState(getInitialTheme);
 
   const toggleTheme = () => {
-    const newTheme = !isDarkMode;
-    setIsDarkMode(newTheme);
-    localStorage.setItem(THEME_KEY, JSON.stringify(newTheme));
+    setIsDarkMode((current) => {
+      const next = !current;
+      try {
+        window.localStorage.setItem(THEME_KEY, JSON.stringify(next));
+      } catch {
+        // Ignore storage write failures so theme toggling never crashes app.
+      }
+      return next;
+    });
   };
 
   // Apply theme to document root for potential CSS variable usage

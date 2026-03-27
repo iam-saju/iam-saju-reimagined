@@ -11,8 +11,7 @@ const AdminAuth = ({ onAuthenticated }: AdminAuthProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Simple but secure password - in production, use environment variables
-  const ADMIN_PASSWORD = 'leonardo_michelangelo_2025';
+  const ADMIN_PASSWORD = (import.meta.env.VITE_ARCHIVE_ADMIN_KEY as string | undefined)?.trim() || 'leonardo_michelangelo_2025';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,9 +21,12 @@ const AdminAuth = ({ onAuthenticated }: AdminAuthProps) => {
     // Simulate API call delay for better UX
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    if (password === ADMIN_PASSWORD) {
+    const normalizedPassword = password.trim();
+
+    if (normalizedPassword === ADMIN_PASSWORD) {
       // Store authentication in sessionStorage (expires when tab closes)
       sessionStorage.setItem('admin_authenticated', 'true');
+      sessionStorage.setItem('admin_auth_token', `Bearer ${ADMIN_PASSWORD}`);
       onAuthenticated();
     } else {
       setError('Invalid access key');

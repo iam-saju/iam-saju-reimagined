@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "api": "node server.cjs",
+    "dev:upload": "node server.cjs",
     "build": "tsc -b && vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",

@@ -19,6 +19,7 @@ const AdminArchive = () => {
 
   const handleLogout = () => {
     sessionStorage.removeItem('admin_authenticated');
+    sessionStorage.removeItem('admin_auth_token');
     setIsAuthenticated(false);
   };
 

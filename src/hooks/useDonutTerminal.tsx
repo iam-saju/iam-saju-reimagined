@@ -47,27 +47,10 @@ export const useDonutTerminal = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('toggle-terminal', handleCustomEvent);
-    
-    // Add long-press logic for mobile
-    let touchTimer: ReturnType<typeof setTimeout> | null = null;
-    const handleTouchStart = () => {
-      touchTimer = setTimeout(handleCustomEvent, 500);
-    };
-    const handleTouchEnd = () => {
-      if (touchTimer) clearTimeout(touchTimer);
-    };
-
-    window.addEventListener('touchstart', handleTouchStart);
-    window.addEventListener('touchend', handleTouchEnd);
-    window.addEventListener('touchmove', handleTouchEnd); // Cancel on scroll
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('toggle-terminal', handleCustomEvent);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchend', handleTouchEnd);
-      window.removeEventListener('touchmove', handleTouchEnd);
-      if (touchTimer) clearTimeout(touchTimer);
     };
   }, [isTerminalVisible, closeTerminal]);
 

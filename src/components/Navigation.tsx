@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
+import { SquareTerminal } from 'lucide-react';
 
 interface NavigationProps {
   isDarkMode?: boolean;
@@ -125,14 +126,16 @@ const Navigation = ({ isDarkMode = true, onToggleTheme }: NavigationProps) => {
 
         {/* Right Section: Mobile Toggle (optional) + Theme + Lambda */}
         <div className="flex-1 flex justify-end items-center gap-3">
-          {/* Terminal Toggle (λ) */}
+          {/* Terminal Toggle */}
           <button 
             onClick={() => window.dispatchEvent(new CustomEvent('toggle-terminal'))}
             className="p-1.5 rounded-md transition-all duration-200 flex items-center justify-center border hover:bg-orange-500/10 lg:hidden" 
             style={{ color: '#cb4b16', borderColor: `#cb4b16` + '40' }}
             title="Open Terminal (shift + t)"
+            aria-label="Open terminal"
           >
-            <span className="text-sm font-bold">λ</span>
+            <SquareTerminal className="w-4 h-4 sm:hidden" />
+            <span className="hidden sm:inline text-sm font-bold">λ</span>
           </button>
 
           {/* Theme Toggle */}
@@ -154,9 +157,18 @@ const Navigation = ({ isDarkMode = true, onToggleTheme }: NavigationProps) => {
           </button>
 
           {/* Mobile minimal menu for links */}
-          <div className="sm:hidden flex items-center gap-4 ml-2">
-             <a href="/posts" className="text-xs font-medium" style={{ color: linkColor }}>posts</a>
-             <a href="/archive" className="text-xs font-medium" style={{ color: linkColor }}>archive</a>
+          <div className="sm:hidden flex items-center gap-2 ml-1">
+             <a href="/posts" className="text-[11px] font-medium" style={{ color: linkColor }}>posts</a>
+             <a href="/archive" className="text-[11px] font-medium" style={{ color: linkColor }}>archive</a>
+             <a
+               href="https://github.com/iam-saju"
+               target="_blank"
+               rel="noopener noreferrer"
+               className="text-[11px] font-medium"
+               style={{ color: linkColor }}
+             >
+               github
+             </a>
           </div>
         </div>
       </div>

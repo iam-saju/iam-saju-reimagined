@@ -22,24 +22,33 @@ export default async function handler(request) {
 
   try {
     const formData = await request.formData();
-    const file = formData.get('file');
+    const uploaded = formData.get('file');
+    const isBlobLike = Boolean(
+      uploaded &&
+      typeof uploaded === 'object' &&
+      typeof uploaded.arrayBuffer === 'function'
+    );
 
-    if (!(file instanceof File)) {
+    if (!isBlobLike) {
       return Response.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
+    const file = uploaded;
+    const fileName = typeof file.name === 'string' && file.name.trim() ? file.name.trim() : 'upload.bin';
+    const fileType = typeof file.type === 'string' && file.type.trim() ? file.type.trim() : 'application/octet-stream';
+    const fileSize = typeof file.size === 'number' ? file.size : 0;
+
     const requestedFilename = String(formData.get('filename') || '').trim();
-    const effectiveFilename = sanitizeFilename(requestedFilename || file.name || 'upload.bin');
+    const effectiveFilename = sanitizeFilename(requestedFilename || fileName);
     const now = Date.now();
     const fileKey = `uploads/${now}_${effectiveFilename}`;
-    const mediaType = file.type?.startsWith('video/') ? 'video' : 'image';
+    const mediaType = fileType.startsWith('video/') ? 'video' : 'image';
     const mediaStore = getMediaStore();
 
-    // Netlify Blobs supports storing File directly from multipart form data.
-    await mediaStore.set(fileKey, file, {
+    await mediaStore.set(fileKey, await file.arrayBuffer(), {
       metadata: {
-        contentType: file.type || 'application/octet-stream',
-        originalName: file.name || effectiveFilename,
+        contentType: fileType,
+        originalName: fileName || effectiveFilename,
       },
     });
 
@@ -48,7 +57,7 @@ export default async function handler(request) {
 
     const archiveItem = {
       id: `${now}_${Math.random().toString(36).slice(2, 10)}`,
-      title: titleInput || createDefaultTitle(file.name || effectiveFilename),
+      title: titleInput || createDefaultTitle(fileName || effectiveFilename),
       caption,
       url: buildMediaUrl(fileKey),
       fileKey,
@@ -67,8 +76,8 @@ export default async function handler(request) {
     return Response.json({
       success: true,
       filename: effectiveFilename,
-      originalName: file.name || effectiveFilename,
-      size: file.size,
+      originalName: fileName || effectiveFilename,
+      size: fileSize,
       path: archiveItem.url,
       item: archiveItem,
     });

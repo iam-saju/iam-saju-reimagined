@@ -36,13 +36,54 @@ const renderInlineCode = (
   );
 };
 
+// ── Helper: Basic Python Syntax Highlighting ──────────────────────────────
+const highlightPython = (code: string, isDarkMode: boolean) => {
+  const keyword = isDarkMode ? '#cb4b16' : '#cb4b16'; // Orange
+  const stringColor = isDarkMode ? '#859900' : '#859900'; // Green
+  const commentColor = isDarkMode ? '#586e75' : '#93a1a1'; // Muted
+  const func = isDarkMode ? '#268bd2' : '#268bd2'; // Blue
+  const keywordList = ['from', 'import', 'def', 'return', 'if', 'else', 'for', 'in', 'while', 'as', 'with', 'try', 'except', 'None', 'True', 'False', 'yield', 'class'];
+
+  const placeholders: string[] = [];
+  let colored = code;
+
+  // 1. Comments - hide them
+  colored = colored.replace(/(#.*)/g, (match) => {
+    placeholders.push(`<span style="color: ${commentColor}">${match}</span>`);
+    return `____PYHL_${placeholders.length - 1}____`;
+  });
+
+  // 2. Strings - hide them
+  colored = colored.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
+    placeholders.push(`<span style="color: ${stringColor}">${match}</span>`);
+    return `____PYHL_${placeholders.length - 1}____`;
+  });
+
+  // 3. Keywords
+  keywordList.forEach(k => {
+    const regex = new RegExp(`\\b${k}\\b`, 'g');
+    colored = colored.replace(regex, `<span style="color: ${keyword}">${k}</span>`);
+  });
+
+  // 4. Function calls/defs
+  colored = colored.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\b\s*\(/g, (_, p1) => `<span style="color: ${func}">${p1}</span>(`);
+
+  // 5. Restore hidden parts in reverse
+  for (let i = placeholders.length - 1; i >= 0; i--) {
+    colored = colored.replace(`____PYHL_${i}____`, placeholders[i]);
+  }
+
+  return <span dangerouslySetInnerHTML={{ __html: colored }} />;
+};
+
 // ── Back To Top Button ─────────────────────────────────────────────────────
 const BackToTop = ({ isDarkMode }: { isDarkMode: boolean }) => {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     const check = () => {
+      const scrollY = window.scrollY;
       const total = document.documentElement.scrollHeight - window.innerHeight;
-      setVisible(total > 0 && window.scrollY / total > 0.3);
+      setVisible(total > 0 && scrollY / total > 0.3);
     };
     window.addEventListener('scroll', check, { passive: true });
     return () => window.removeEventListener('scroll', check);
@@ -218,7 +259,7 @@ const PostHeader = ({
 
       {/* Title — serif, headers only */}
       <h1
-        className="font-serif text-3xl sm:text-4xl md:text-[2.75rem] font-normal leading-[1.15] tracking-[-0.01em]"
+        className="font-serif text-3xl sm:text-4xl md:text-[3.25rem] font-normal leading-[1.1] tracking-[-0.01em]"
         style={{ color: heading }}
       >
         {title}
@@ -247,9 +288,9 @@ const PostHeader = ({
       <div
         className="overflow-hidden rounded-xl"
         style={{
-          maxWidth: '560px',
+          maxWidth: '680px',
           aspectRatio: aspectRatio === 'square' ? '1/1' : 
-                       (aspectRatio === 'natural' ? 'auto' : '16/9'),
+                       (aspectRatio === 'natural' ? 'auto' : '4/3'),
           overflow: 'hidden',
           boxShadow: isDarkMode
             ? '0 8px 32px rgba(0,0,0,0.35)'
@@ -305,9 +346,9 @@ const PostBody = ({
   const sectionHeading = isDarkMode ? '#eee8d5' : '#073642';
   const body = isDarkMode ? '#93a1a1' : '#586e75';
   const divider = isDarkMode ? 'rgba(101,123,131,0.15)' : 'rgba(147,161,161,0.2)';
-  const codeBg = isDarkMode ? 'rgba(7,54,66,0.9)' : '#eee8d5';
-  const codeBorder = isDarkMode ? 'rgba(38,139,210,0.15)' : 'rgba(147,161,161,0.3)';
-  const codeText = isDarkMode ? '#93a1a1' : '#586e75';
+  const codeBg = isDarkMode ? '#001b22' : '#f5f0e1';
+  const codeBorder = isDarkMode ? 'rgba(38,139,210,0.1)' : 'rgba(147,161,161,0.2)';
+  const codeText = isDarkMode ? '#839496' : '#586e75';
   const mono = "'Geist Mono', monospace";
 
   return (
@@ -386,16 +427,17 @@ const PostBody = ({
                 </span>
               </div>
               <pre
-                className="text-xs p-5 overflow-x-auto"
+                className="text-[11.5px] p-6 overflow-x-auto"
                 style={{
                   fontFamily: mono,
                   backgroundColor: codeBg,
                   color: codeText,
-                  lineHeight: 1.8,
+                  lineHeight: 1.85,
                   margin: 0,
+                  letterSpacing: '0.01em',
                 }}
               >
-                <code>{section.code}</code>
+                <code>{highlightPython(section.code, isDarkMode)}</code>
               </pre>
             </div>
           )}

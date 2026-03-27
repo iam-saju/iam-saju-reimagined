@@ -14,9 +14,9 @@ export default async function handler(request) {
 
   try {
     const mediaStore = getMediaStore();
-    const blobWithMetadata = await mediaStore.getWithMetadata(key, { type: 'arrayBuffer' });
+    const blobWithMetadata = await mediaStore.getWithMetadata(key);
 
-    if (!blobWithMetadata?.data) {
+    if (!blobWithMetadata || !blobWithMetadata.data) {
       return Response.json({ error: 'Media not found' }, { status: 404 });
     }
 
@@ -29,11 +29,12 @@ export default async function handler(request) {
       },
     });
   } catch (error) {
-    return Response.json({ error: 'Failed to load media' }, { status: 500 });
+    console.error('archive media fetch failed', error);
+    const message = error instanceof Error ? error.message : 'Failed to load media';
+    return Response.json({ error: message }, { status: 500 });
   }
 }
 
 export const config = {
   path: '/api/archive-media',
 };
-

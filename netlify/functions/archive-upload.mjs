@@ -35,7 +35,8 @@ export default async function handler(request) {
     const mediaType = file.type?.startsWith('video/') ? 'video' : 'image';
     const mediaStore = getMediaStore();
 
-    await mediaStore.set(fileKey, await file.arrayBuffer(), {
+    // Netlify Blobs supports storing File directly from multipart form data.
+    await mediaStore.set(fileKey, file, {
       metadata: {
         contentType: file.type || 'application/octet-stream',
         originalName: file.name || effectiveFilename,
@@ -72,11 +73,12 @@ export default async function handler(request) {
       item: archiveItem,
     });
   } catch (error) {
-    return Response.json({ error: 'Upload failed' }, { status: 500 });
+    console.error('archive upload failed', error);
+    const message = error instanceof Error ? error.message : 'Upload failed';
+    return Response.json({ error: `Upload failed: ${message}` }, { status: 500 });
   }
 }
 
 export const config = {
   path: '/api/upload-archive',
 };
-

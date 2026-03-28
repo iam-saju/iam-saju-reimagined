@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '@/hooks/useTheme';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -15,6 +15,14 @@ const Notes = () => {
   const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>('grid');
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Pre-select tag from ?tag= URL param (e.g. when clicking a tag in PostViewer)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tag = params.get('tag');
+    if (tag) setActiveTags([tag]);
+  }, [location.search]);
 
   useEffect(() => {
     const handleScroll = () => {

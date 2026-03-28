@@ -133,12 +133,14 @@ const TableOfContents = ({
   sections,
   activeId,
   isDarkMode,
+  isFinished,
 }: {
   sections: Section[];
   activeId: string;
   isDarkMode: boolean;
+  isFinished: boolean;
 }) => {
-  const muted = isDarkMode ? '#657b83' : '#93a1a1';
+  const muted = isDarkMode ? '#8a9fa8' : '#4a5f66';
   const mono = "'Geist Mono', monospace";
 
   const handleClick = (id: string) => {
@@ -193,6 +195,15 @@ const TableOfContents = ({
             );
           })}
         </nav>
+        {/* Finished indicator */}
+        {isFinished && (
+          <div
+            className="mt-4 pl-4 text-[10px] transition-all duration-500"
+            style={{ fontFamily: mono, color: isDarkMode ? '#4a6a72' : '#93a1a1' }}
+          >
+            ✓ finished
+          </div>
+        )}
       </div>
     </aside>
   );
@@ -213,6 +224,7 @@ const PostHeader = ({
   lightBg,
   aspectRatio,
   objectFit,
+  onTagClick,
 }: {
   title: string;
   tags: string[];
@@ -225,6 +237,7 @@ const PostHeader = ({
   lightBg?: boolean;
   aspectRatio?: string;
   objectFit?: 'cover' | 'contain';
+  onTagClick?: (tag: string) => void;
 }) => {
   const heading = isDarkMode ? '#fdf6e3' : '#073642';
   const green = '#859900';
@@ -268,19 +281,21 @@ const PostHeader = ({
       {/* Tags — Apple-style pill badges */}
       <div className="flex flex-wrap items-center gap-2">
         {tags.map((tag) => (
-          <span
+          <button
             key={tag}
-            className="text-[11px] lowercase px-2.5 py-0.5"
+            onClick={() => onTagClick?.(tag)}
+            className="text-[11px] lowercase px-2.5 py-0.5 transition-opacity hover:opacity-70"
             style={{
               fontFamily: mono,
               color: green,
               border: `1px solid ${green}40`,
               backgroundColor: isDarkMode ? `${green}10` : `${green}0d`,
               letterSpacing: '0.03em',
+              cursor: onTagClick ? 'pointer' : 'default',
             }}
           >
             {tag}
-          </span>
+          </button>
         ))}
       </div>
 
@@ -289,8 +304,9 @@ const PostHeader = ({
         className="overflow-hidden rounded-xl"
         style={{
           maxWidth: '680px',
-          aspectRatio: aspectRatio === 'square' ? '1/1' : 
-                       (aspectRatio === 'natural' ? 'auto' : '4/3'),
+          maxHeight: '280px',
+          aspectRatio: aspectRatio === 'square' ? '1/1' :
+                       (aspectRatio === 'natural' ? 'auto' : '21/9'),
           overflow: 'hidden',
           boxShadow: isDarkMode
             ? '0 8px 32px rgba(0,0,0,0.35)'
@@ -336,15 +352,13 @@ const PostHeader = ({
 // ── Post Body ──────────────────────────────────────────────────────────────
 const PostBody = ({
   sections,
-  activeId,
   isDarkMode,
 }: {
   sections: Section[];
-  activeId: string;
   isDarkMode: boolean;
 }) => {
   const sectionHeading = isDarkMode ? '#eee8d5' : '#073642';
-  const body = isDarkMode ? '#93a1a1' : '#586e75';
+  const body = isDarkMode ? '#adbfc8' : '#4a5f66';
   const divider = isDarkMode ? 'rgba(101,123,131,0.15)' : 'rgba(147,161,161,0.2)';
   const codeBg = isDarkMode ? '#001b22' : '#f5f0e1';
   const codeBorder = isDarkMode ? 'rgba(38,139,210,0.1)' : 'rgba(147,161,161,0.2)';
@@ -354,15 +368,12 @@ const PostBody = ({
   return (
     <div>
       {sections.map((section, idx) => {
-        const isActive = activeId === '' || activeId === section.id;
-        const opacity = isActive ? 1 : 0.4;
         
         return (
           <div
             key={section.id}
-            className="pb-10 transition-all duration-500 ease-in-out"
+            className="pb-10 transition-all duration-300 ease-in-out"
             style={{
-              opacity,
               borderBottom: idx < sections.length - 1 ? `1px solid ${divider}` : 'none',
               marginBottom: idx < sections.length - 1 ? '40px' : 0,
             }}
@@ -388,7 +399,7 @@ const PostBody = ({
               para.trim() ? (
                 <p
                   key={i}
-                  className="text-[13.5px] leading-[1.85]"
+                  className="text-[14.5px] leading-[1.9] max-w-[65ch]"
                   style={{ fontFamily: mono, color: body }}
                 >
                   {renderInlineCode(para.trim(), isDarkMode, mono)}
@@ -466,6 +477,120 @@ const PostBody = ({
   );
 };
 
+// ── Post Ending (sign-off + prev/next + related) ───────────────────────────
+const PostEnding = ({
+  post,
+  allPosts,
+  isDarkMode,
+}: {
+  post: { slug: string; title: string; description: string; tags: string[]; date: string; readTime: string; image: string; cardImage?: string; draft?: boolean; sections: import('@/types/post').Section[] };
+  allPosts: typeof posts;
+  isDarkMode: boolean;
+}) => {
+  const mono = "'Geist Mono', monospace";
+  const muted = isDarkMode ? '#586e75' : '#93a1a1';
+  const heading = isDarkMode ? '#eee8d5' : '#073642';
+  const accent = '#b58900';
+  const blue = '#268bd2';
+  const dividerColor = isDarkMode ? 'rgba(101,123,131,0.2)' : 'rgba(147,161,161,0.25)';
+  const cardBg = isDarkMode ? 'rgba(7,54,66,0.5)' : 'rgba(238,232,213,0.7)';
+  const cardBorder = isDarkMode ? 'rgba(101,123,131,0.2)' : 'rgba(147,161,161,0.2)';
+
+  const publishedPosts = allPosts.filter(p => !p.draft && p.sections.length > 0);
+  const currentPublishedIndex = publishedPosts.findIndex(p => p.slug === post.slug);
+  const prevPost = currentPublishedIndex > 0 ? publishedPosts[currentPublishedIndex - 1] : null;
+  const nextPost = currentPublishedIndex < publishedPosts.length - 1 ? publishedPosts[currentPublishedIndex + 1] : null;
+  const relatedPosts = allPosts
+    .filter(p => p.slug !== post.slug && !p.draft && p.sections.length > 0 && p.tags.some(t => post.tags.includes(t)))
+    .slice(0, 2);
+
+  return (
+    <div className="mt-16 pt-10" style={{ borderTop: `1px solid ${dividerColor}` }}>
+      {/* Sign-off */}
+      <p
+        className="text-[13px] mb-10"
+        style={{ fontFamily: mono, color: muted }}
+      >
+        thanks for reading — more to come.{' '}
+        <a
+          href="/posts"
+          style={{ color: blue, textDecoration: 'underline', textUnderlineOffset: '3px' }}
+        >
+          ← back to all posts
+        </a>
+      </p>
+
+      {/* Prev / Next navigation */}
+      {(prevPost || nextPost) && (
+        <div
+          className="grid gap-3 mb-12"
+          style={{ gridTemplateColumns: prevPost && nextPost ? '1fr 1fr' : '1fr' }}
+        >
+          {prevPost && (
+            <a
+              href={`/posts/${prevPost.slug}`}
+              className="group flex flex-col gap-1 p-4 rounded-lg transition-all duration-200 hover:-translate-y-0.5"
+              style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}
+            >
+              <span className="text-[10px] tracking-widest uppercase" style={{ fontFamily: mono, color: muted }}>← previous</span>
+              <span
+                className="text-sm font-serif leading-tight group-hover:underline"
+                style={{ color: heading, textUnderlineOffset: '3px' }}
+              >
+                {prevPost.title}
+              </span>
+            </a>
+          )}
+          {nextPost && (
+            <a
+              href={`/posts/${nextPost.slug}`}
+              className="group flex flex-col gap-1 p-4 rounded-lg transition-all duration-200 hover:-translate-y-0.5 text-right ml-auto w-full"
+              style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}
+            >
+              <span className="text-[10px] tracking-widest uppercase" style={{ fontFamily: mono, color: muted }}>next →</span>
+              <span
+                className="text-sm font-serif leading-tight group-hover:underline"
+                style={{ color: heading, textUnderlineOffset: '3px' }}
+              >
+                {nextPost.title}
+              </span>
+            </a>
+          )}
+        </div>
+      )}
+
+      {/* Related posts */}
+      {relatedPosts.length > 0 && (
+        <div>
+          <p className="text-[10px] tracking-[0.12em] uppercase mb-4" style={{ fontFamily: mono, color: muted }}>
+            you might also like
+          </p>
+          <div className="flex flex-col gap-3">
+            {relatedPosts.map(related => (
+              <a
+                key={related.slug}
+                href={`/posts/${related.slug}`}
+                className="group flex items-center justify-between gap-4 p-4 rounded-lg transition-all duration-200 hover:-translate-y-0.5"
+                style={{ backgroundColor: cardBg, border: `1px solid ${cardBorder}` }}
+              >
+                <div className="flex flex-col gap-1 min-w-0">
+                  <span className="text-sm font-serif leading-tight group-hover:underline truncate" style={{ color: heading, textUnderlineOffset: '3px' }}>
+                    {related.title}
+                  </span>
+                  <span className="text-[11px] truncate" style={{ fontFamily: mono, color: muted }}>
+                    {related.description}
+                  </span>
+                </div>
+                <span className="shrink-0 text-xs transition-transform group-hover:translate-x-1" style={{ color: accent }}>→</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ── PostViewer (main page) ─────────────────────────────────────────────────
 const PostViewer = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -515,7 +640,8 @@ const PostViewer = () => {
   if (!post) return null;
 
   const bg = isDarkMode ? '#002b36' : '#fdf6e3';
-  const body = isDarkMode ? '#93a1a1' : '#586e75';
+  const body = isDarkMode ? '#adbfc8' : '#4a5f66';
+  const isFinished = post.sections.length > 0 && activeId === post.sections[post.sections.length - 1].id;
 
   return (
     <div
@@ -547,6 +673,7 @@ const PostViewer = () => {
               sections={post.sections}
               activeId={activeId}
               isDarkMode={isDarkMode}
+              isFinished={isFinished}
             />
 
             {/* Main content */}
@@ -563,8 +690,10 @@ const PostViewer = () => {
                 lightBg={post.lightBg}
                 aspectRatio={post.aspectRatio}
                 objectFit={post.objectFit}
+                onTagClick={(tag) => navigate(`/posts?tag=${tag}`)}
               />
-              <PostBody sections={post.sections} activeId={activeId} isDarkMode={isDarkMode} />
+              <PostBody sections={post.sections} isDarkMode={isDarkMode} />
+              <PostEnding post={post} allPosts={posts} isDarkMode={isDarkMode} />
             </article>
 
 

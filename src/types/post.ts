@@ -25,6 +25,7 @@ export interface Post {
   aspectRatio?: string;
   objectFit?: 'cover' | 'contain';
   sections: Section[];
+  closingLine?: string;
 }
 
 export const posts: Post[] = [
@@ -89,6 +90,7 @@ def gradient_descent(x, y, learning_rate=0.01, epochs=1000):
         body: `as we walk downhill, our 'badness score' gets smaller and smaller. eventually, the slope flattens out, meaning we literally hit rock bottom (the perfect line!).\n\nwhen the score stops dropping by any meaningful amount, we say the model has converged. at this point, we just stop the loop and call it a day!`,
       },
     ],
+    closingLine: "that's the whole trick. a bad line, a score, a nudge, repeated until it fits. not magic — just stubborn arithmetic.",
   },
   {
     slug: 'bitcoin-server-cpp',
@@ -178,5 +180,6 @@ agent_executor = AgentExecutor(agent=agent, tools=tools)
 agent_executor.invoke({"input": "What is the price of Bitcoin and how much would 0.5 BTC cost?"})`,
       },
     ],
+    closingLine: "that's the whole thing. one model, a few wires, and suddenly you've got something that can actually do stuff.",
   },
 ];

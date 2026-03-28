@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '@/hooks/useTheme';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -13,16 +13,23 @@ const Notes = () => {
   const { isDarkMode, toggleTheme } = useTheme();
   const [scrollProgress, setScrollProgress] = useState(0);
   const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>('grid');
-  const [activeTags, setActiveTags] = useState<string[]>([]);
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // Pre-select tag from ?tag= URL param (e.g. when clicking a tag in PostViewer)
+  // Read tag from URL, support multiple tags via comma-separated ?tag=ai,python
+  const urlTag = searchParams.get('tag');
+  const [activeTags, setActiveTags] = useState<string[]>(
+    urlTag ? urlTag.split(',').filter(Boolean) : []
+  );
+
+  // Sync URL when activeTags changes
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const tag = params.get('tag');
-    if (tag) setActiveTags([tag]);
-  }, [location.search]);
+    if (activeTags.length > 0) {
+      setSearchParams({ tag: activeTags.join(',') }, { replace: true });
+    } else {
+      setSearchParams({}, { replace: true });
+    }
+  }, [activeTags, setSearchParams]);
 
   useEffect(() => {
     const handleScroll = () => {

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { SquareTerminal } from 'lucide-react';
 
 interface NavigationProps {
@@ -89,6 +89,14 @@ const GlitchLink = ({
 };
 
 const Navigation = ({ isDarkMode = true, onToggleTheme }: NavigationProps) => {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   // Solarized colors
   const bg = isDarkMode ? '#002b36' : '#fdf6e3';
   const border = isDarkMode ? '#073642' : '#eee8d5';
@@ -98,11 +106,18 @@ const Navigation = ({ isDarkMode = true, onToggleTheme }: NavigationProps) => {
 
   return (
     <header 
-      className="sticky top-0 z-50 w-full backdrop-blur-md transition-all duration-300 border-b"
+      className="sticky top-0 z-50 w-full transition-all duration-300 border-b"
       style={{ 
-        backgroundColor: `${bg}dd`, 
+        backgroundColor: scrolled
+          ? isDarkMode ? 'rgba(0,43,54,0.92)' : 'rgba(253,246,227,0.92)'
+          : `${bg}cc`,
+        backdropFilter: scrolled ? 'blur(12px)' : 'blur(4px)',
+        WebkitBackdropFilter: scrolled ? 'blur(12px)' : 'blur(4px)',
         borderColor: `${border}40`,
-        fontFamily: "'Geist Mono', monospace" 
+        fontFamily: "'Geist Mono', monospace",
+        boxShadow: scrolled
+          ? isDarkMode ? '0 1px 20px rgba(0,0,0,0.25)' : '0 1px 16px rgba(0,0,0,0.06)'
+          : 'none',
       }}
     >
       <div className="max-w-4xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">

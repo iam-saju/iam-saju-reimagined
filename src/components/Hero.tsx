@@ -65,7 +65,7 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
 
           <div
             className="space-y-3 text-sm sm:text-base leading-relaxed"
-            style={{ fontFamily: "'Geist Mono', monospace", color: body }}
+            style={{ fontFamily: "'Urbanist', system-ui, sans-serif", color: body }}
           >
             <p>
               i'm <span style={{ color: bright, fontWeight: 600 }}>saju</span>. :)
@@ -80,7 +80,7 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
             </p>
           </div>
 
-          <div className="pt-4 space-y-3" style={{ fontFamily: "'Geist Mono', monospace" }}>
+          <div className="pt-4 space-y-3" style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}>
             <h3 className="text-base sm:text-lg font-medium">experiments</h3>
             <ul className="space-y-1.5 text-sm sm:text-base">
               {[
@@ -107,7 +107,7 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
             </ul>
           </div>
 
-          <div className="pt-4 space-y-2" style={{ fontFamily: "'Geist Mono', monospace" }}>
+          <div className="pt-4 space-y-2" style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}>
             <p className="text-sm" style={{ color: muted }}>
               build until it breaks. inspect the failure. repeat.
             </p>
@@ -126,7 +126,7 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
             </p>
           </div>
 
-          <div className="pt-4" style={{ fontFamily: "'Geist Mono', monospace" }}>
+          <div className="pt-4" style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}>
             <p className="text-sm" style={{ color: body }}>
               <span style={{ fontWeight: 'bold' }}>tweets</span>{' '}
               <a
@@ -143,7 +143,7 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
 
           <p
             className="hidden lg:block text-sm italic pt-2"
-            style={{ fontFamily: "'Geist Mono', monospace", color: muted }}
+            style={{ fontFamily: "'Urbanist', system-ui, sans-serif", color: muted }}
           >
             enter terminal for shift + t
           </p>

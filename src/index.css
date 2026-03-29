@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Charter:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Georgia:wght@400;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
 
 @tailwind base;
@@ -254,7 +254,7 @@
     --dark-border: #073642;
     --accent: 212 100% 60%;
     --accent-hover: 212 100% 70%;
-    font-family: 'Geist Mono', 'Fira Code', monospace;
+    font-family: 'Urbanist', system-ui, -apple-system, sans-serif;
   }
 
 }

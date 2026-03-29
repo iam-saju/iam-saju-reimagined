@@ -195,7 +195,7 @@ const AIArchive = () => {
   const cardBg = isDarkMode ? '#073642' : '#eee8d5';
   const cardBorder = isDarkMode ? '#073642' : '#e8dfc7';
   const overlayBg = isDarkMode ? '#073642' : '#f7f0de';
-  const mono = "'Geist Mono', monospace";
+  const mono = "'Urbanist', system-ui, sans-serif";
 
   useEffect(() => {
     const handleScroll = () => {

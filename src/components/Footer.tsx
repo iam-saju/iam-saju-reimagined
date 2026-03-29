@@ -9,7 +9,7 @@ const Footer = ({ isDarkMode = true }: FooterProps) => {
 
 
   return (
-    <footer className="w-full" style={{ fontFamily: "'Geist Mono', monospace" }}>
+    <footer className="w-full" style={{ fontFamily: "'Urbanist', system-ui, sans-serif" }}>
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
         <div className="pt-8 pb-8" style={{ borderTop: `1px solid ${border}`, opacity: 0.15 }}>
           {/* Subtle separator */}

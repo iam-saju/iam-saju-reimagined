@@ -38,7 +38,7 @@ const Notes = () => {
   const cardBg = isDarkMode ? '#073642' : '#eee8d5';
   const cardBorder = isDarkMode ? '#073642' : '#eee8d5';
   const border = cardBorder;
-  const mono = "'Urbanist', system-ui, sans-serif";
+  const mono = "'Geist Mono', monospace";
 
   // ── Helper Components ──────────────────────────────────────────────────────
   const TagPill = ({ tag, isActive, onClick }: { tag: string; isActive?: boolean; onClick?: (tag: string) => void }) => {

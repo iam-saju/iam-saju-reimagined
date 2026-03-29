@@ -139,7 +139,7 @@ const TableOfContents = ({
   isDarkMode: boolean;
 }) => {
   const muted = isDarkMode ? '#657b83' : '#93a1a1';
-  const mono = "'Urbanist', system-ui, sans-serif";
+  const mono = "'Geist Mono', monospace";
 
   const handleClick = (id: string) => {
     const el = document.getElementById(id);
@@ -230,7 +230,7 @@ const PostHeader = ({
   const green = '#859900';
   const muted = isDarkMode ? '#93a1a1' : '#586e75';
   const accent = '#b58900';
-  const mono = "'Urbanist', system-ui, sans-serif";
+  const mono = "'Geist Mono', monospace";
   const [copied, setCopied] = useState(false);
 
   const handleShare = () => {
@@ -349,7 +349,7 @@ const PostBody = ({
   const codeBg = isDarkMode ? '#001b22' : '#f5f0e1';
   const codeBorder = isDarkMode ? 'rgba(38,139,210,0.1)' : 'rgba(147,161,161,0.2)';
   const codeText = isDarkMode ? '#839496' : '#586e75';
-  const mono = "'Urbanist', system-ui, sans-serif";
+  const mono = "'Geist Mono', monospace";
 
   return (
     <div>

@@ -71,7 +71,7 @@ const GlitchLink = ({
     <a
       href={href}
       className="transition-colors"
-      style={{ color, fontFamily: "'Urbanist', system-ui, sans-serif" }}
+      style={{ color, fontFamily: "'Geist Mono', monospace" }}
       onMouseEnter={e => {
         e.currentTarget.style.color = hoverColor;
         startGlitch();
@@ -102,7 +102,7 @@ const Navigation = ({ isDarkMode = true, onToggleTheme }: NavigationProps) => {
       style={{ 
         backgroundColor: `${bg}dd`, 
         borderColor: `${border}40`,
-        fontFamily: "'Urbanist', system-ui, sans-serif" 
+        fontFamily: "'Geist Mono', monospace" 
       }}
     >
       <div className="max-w-4xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">

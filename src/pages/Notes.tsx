@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/hooks/useTheme';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -13,23 +13,8 @@ const Notes = () => {
   const { isDarkMode, toggleTheme } = useTheme();
   const [scrollProgress, setScrollProgress] = useState(0);
   const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>('grid');
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTags, setActiveTags] = useState<string[]>([]);
   const navigate = useNavigate();
-
-  // Read tag from URL, support multiple tags via comma-separated ?tag=ai,python
-  const urlTag = searchParams.get('tag');
-  const [activeTags, setActiveTags] = useState<string[]>(
-    urlTag ? urlTag.split(',').filter(Boolean) : []
-  );
-
-  // Sync URL when activeTags changes
-  useEffect(() => {
-    if (activeTags.length > 0) {
-      setSearchParams({ tag: activeTags.join(',') }, { replace: true });
-    } else {
-      setSearchParams({}, { replace: true });
-    }
-  }, [activeTags, setSearchParams]);
 
   useEffect(() => {
     const handleScroll = () => {

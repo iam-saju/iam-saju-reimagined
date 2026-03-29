@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useTheme } from '@/hooks/useTheme';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { posts } from '@/types/post';
-import type { Post, Section } from '@/types/post';
+import type { Section } from '@/types/post';
 
 // ── Helper: render inline `code` spans inside paragraph text ──────────────
 const renderInlineCode = (
@@ -12,8 +12,7 @@ const renderInlineCode = (
   isDarkMode: boolean,
   mono: string
 ): React.ReactNode[] => {
-  // P5 fix: warm teal tint in dark mode (was flat grey), clean blue highlight in light
-  const codeBg = isDarkMode ? 'rgba(42,143,143,0.18)' : 'rgba(38,139,210,0.09)';
+  const codeBg = isDarkMode ? 'rgba(38,139,210,0.12)' : 'rgba(38,139,210,0.09)';
   const codeColor = isDarkMode ? '#268bd2' : '#268bd2';
   const parts = text.split(/`([^`]+)`/);
   return parts.map((part, i) =>
@@ -139,107 +138,63 @@ const TableOfContents = ({
   activeId: string;
   isDarkMode: boolean;
 }) => {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  // P1 fix: bump inactive TOC contrast to pass WCAG AA (was ~2.1:1 on cream)  
-  const muted = isDarkMode ? '#7AACAC' : '#6B7B7C';
+  const muted = isDarkMode ? '#657b83' : '#93a1a1';
   const mono = "'Geist Mono', monospace";
-  const bg = isDarkMode ? '#002b36' : '#fdf6e3';
-  const border = isDarkMode ? 'rgba(101,123,131,0.2)' : 'rgba(147,161,161,0.2)';
 
   const handleClick = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setMobileOpen(false);
   };
 
-  const TocItems = () => (
-    <nav className="flex flex-col gap-3 relative py-2">
-      {sections.map((section) => {
-        const isActive = activeId === section.id;
-        return (
-          <div key={section.id} className="relative flex items-center">
-            {isActive && (
-              <div
-                className="absolute -left-[0.5px] w-[2px] h-full rounded-full transition-all duration-300"
-                style={{ backgroundColor: isDarkMode ? '#eee8d5' : '#073642' }}
-              />
-            )}
-            <button
-              onClick={() => handleClick(section.id)}
-              className="block w-full text-left pl-4 py-0 transition-colors duration-200 text-[11px] leading-relaxed"
-              style={{
-                fontFamily: mono,
-                color: isActive ? (isDarkMode ? '#eee8d5' : '#073642') : muted,
-                fontWeight: isActive ? 500 : 400,
-              }}
-            >
-              {section.heading.toLowerCase()}
-            </button>
-          </div>
-        );
-      })}
-    </nav>
-  );
-
   return (
-    <>
-      {/* P9: Mobile sticky Contents pill */}
-      <div
-        className="md:hidden sticky top-20 z-40 mb-4"
-        style={{ fontFamily: mono }}
+    <aside
+      className="hidden md:flex flex-col gap-8 sticky top-24 self-start"
+      style={{ width: '200px', minWidth: '200px', flexShrink: 0 }}
+    >
+      <button
+        onClick={() => { window.location.href = '/posts'; }}
+        className="text-[11px] transition-all duration-150 hover:opacity-70 text-left w-fit"
+        style={{ color: '#268bd2', fontFamily: mono }}
       >
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="text-[11px] px-3 py-1.5 rounded-full transition-all duration-200"
-          style={{
-            color: isDarkMode ? '#eee8d5' : '#073642',
-            backgroundColor: isDarkMode ? '#073642' : '#eee8d5',
-            border: `1px solid ${border}`,
-          }}
-        >
-          contents {mobileOpen ? '↑' : '↓'}
-        </button>
-        {mobileOpen && (
-          <div
-            className="absolute top-9 left-0 rounded-lg p-4 shadow-lg z-50"
-            style={{
-              backgroundColor: bg,
-              border: `1px solid ${border}`,
-              minWidth: '200px',
-            }}
-          >
-            <div className="relative">
-              <div className="absolute left-0 top-0 bottom-0 w-[1px]" style={{ backgroundColor: border }} />
-              <TocItems />
-            </div>
-          </div>
-        )}
+        ← all posts
+      </button>
+
+      {/* Minimal vertical line ToC */}
+      <div className="relative">
+        {/* Track line left border */}
+        <div 
+          className="absolute left-0 top-0 bottom-0 w-[1px]" 
+          style={{ backgroundColor: isDarkMode ? 'rgba(101,123,131,0.2)' : 'rgba(147,161,161,0.2)' }} 
+        />
+        
+        <nav className="flex flex-col gap-3 relative py-2">
+          {sections.map((section) => {
+            const isActive = activeId === section.id;
+            return (
+              <div key={section.id} className="relative flex items-center">
+                {isActive && (
+                  <div 
+                    className="absolute -left-[0.5px] w-[2px] h-full rounded-full transition-all duration-300" 
+                    style={{ backgroundColor: isDarkMode ? '#eee8d5' : '#073642' }} 
+                  />
+                )}
+                <button
+                  onClick={() => handleClick(section.id)}
+                  className="block w-full text-left pl-4 py-0 transition-colors duration-200 text-[11px] leading-relaxed"
+                  style={{
+                    fontFamily: mono,
+                    color: isActive ? (isDarkMode ? '#eee8d5' : '#073642') : muted,
+                    fontWeight: isActive ? 500 : 400,
+                  }}
+                >
+                  {section.heading.toLowerCase()}
+                </button>
+              </div>
+            );
+          })}
+        </nav>
       </div>
-
-      {/* Desktop sidebar  */}
-      <aside
-        className="hidden md:flex flex-col gap-8 sticky top-24 self-start"
-        style={{ width: '200px', minWidth: '200px', flexShrink: 0 }}
-      >
-        <button
-          onClick={() => { window.location.href = '/posts'; }}
-          className="text-[11px] transition-all duration-150 hover:opacity-70 text-left w-fit"
-          style={{ color: '#268bd2', fontFamily: mono }}
-        >
-          ← all posts
-        </button>
-
-        {/* Minimal vertical line ToC */}
-        <div className="relative">
-          {/* Track line left border */}
-          <div
-            className="absolute left-0 top-0 bottom-0 w-[1px]"
-            style={{ backgroundColor: border }}
-          />
-          <TocItems />
-        </div>
-      </aside>
-    </>
+    </aside>
   );
 };
 
@@ -256,6 +211,8 @@ const PostHeader = ({
   quote,
   isDarkMode,
   lightBg,
+  aspectRatio,
+  objectFit,
 }: {
   title: string;
   tags: string[];
@@ -266,6 +223,8 @@ const PostHeader = ({
   quote?: string;
   isDarkMode: boolean;
   lightBg?: boolean;
+  aspectRatio?: string;
+  objectFit?: 'cover' | 'contain';
 }) => {
   const heading = isDarkMode ? '#fdf6e3' : '#073642';
   const green = '#859900';
@@ -306,34 +265,32 @@ const PostHeader = ({
         {title}
       </h1>
 
-      {/* Tags — linked pill badges */}
+      {/* Tags — Apple-style pill badges */}
       <div className="flex flex-wrap items-center gap-2">
         {tags.map((tag) => (
-          <Link
+          <span
             key={tag}
-            to={`/posts?tag=${tag}`}
-            className="text-[11px] lowercase px-2.5 py-0.5 transition-all duration-200 hover:opacity-80"
+            className="text-[11px] lowercase px-2.5 py-0.5"
             style={{
               fontFamily: mono,
               color: green,
               border: `1px solid ${green}40`,
               backgroundColor: isDarkMode ? `${green}10` : `${green}0d`,
               letterSpacing: '0.03em',
-              textDecoration: 'none',
             }}
           >
             {tag}
-          </Link>
+          </span>
         ))}
       </div>
 
-      {/* Cover image — P3: capped at 240px, 16/9, object-top */}
+      {/* Cover image — rounded corners, soft shadow */}
       <div
         className="overflow-hidden rounded-xl"
         style={{
           maxWidth: '680px',
-          maxHeight: '240px',
-          aspectRatio: '16/9',
+          aspectRatio: aspectRatio === 'square' ? '1/1' : 
+                       (aspectRatio === 'natural' ? 'auto' : '4/3'),
           overflow: 'hidden',
           boxShadow: isDarkMode
             ? '0 8px 32px rgba(0,0,0,0.35)'
@@ -343,9 +300,9 @@ const PostHeader = ({
         <img
           src={image}
           alt={title}
-          className="w-full h-full object-cover"
+          className={`w-full h-full object-${objectFit || 'cover'}`}
           style={{
-            objectPosition: imagePosition || 'top',
+            objectPosition: imagePosition || 'center',
             filter: isDarkMode
               ? lightBg
                 ? 'invert(1) hue-rotate(180deg) brightness(0.85)'
@@ -379,9 +336,11 @@ const PostHeader = ({
 // ── Post Body ──────────────────────────────────────────────────────────────
 const PostBody = ({
   sections,
+  activeId,
   isDarkMode,
 }: {
   sections: Section[];
+  activeId: string;
   isDarkMode: boolean;
 }) => {
   const sectionHeading = isDarkMode ? '#eee8d5' : '#073642';
@@ -395,8 +354,8 @@ const PostBody = ({
   return (
     <div>
       {sections.map((section, idx) => {
-        // P6: always show sections at full opacity — remove the fade ghost effect
-        const opacity = 1;
+        const isActive = activeId === '' || activeId === section.id;
+        const opacity = isActive ? 1 : 0.4;
         
         return (
           <div
@@ -411,7 +370,7 @@ const PostBody = ({
           {/* Section number label + heading — serif, headers only */}
           <p
             className="text-[10px] font-medium mb-1.5 tracking-[0.12em] uppercase"
-            style={{ fontFamily: mono, color: isDarkMode ? '#4A8A8E' : '#93a1a1' }}
+            style={{ fontFamily: mono, color: isDarkMode ? '#4a6a72' : '#93a1a1' }}
           >
             {String(idx + 1).padStart(2, '0')}.
           </p>
@@ -423,13 +382,13 @@ const PostBody = ({
             {section.heading}
           </h2>
 
-          {/* Body paragraphs — P10: bumped to 17px, 1.85 line-height */}
+          {/* Body paragraphs — inline code highlighted */}
           <div className="space-y-4">
             {section.body.split('\n\n').map((para, i) =>
               para.trim() ? (
                 <p
                   key={i}
-                  className="text-[17px] leading-[1.85]"
+                  className="text-[13.5px] leading-[1.85]"
                   style={{ fontFamily: mono, color: body }}
                 >
                   {renderInlineCode(para.trim(), isDarkMode, mono)}
@@ -503,112 +462,6 @@ const PostBody = ({
         </div>
         );
       })}
-    </div>
-  );
-};
-
-// ── Post Footer — P2: closing line + rule + prev/next nav ──────────────────
-const PostFooter = ({
-  post,
-  isDarkMode,
-}: {
-  post: Post;
-  isDarkMode: boolean;
-}) => {
-  const mono = "'Geist Mono', monospace";
-  const muted = isDarkMode ? '#7AACAC' : '#6B7B7C';
-  const teal = isDarkMode ? '#2A8F8F' : '#1A7A7A';
-
-  const allPublished = posts.filter((p) => !p.draft);
-  const idx = allPublished.findIndex((p) => p.slug === post.slug);
-  const prev = idx > 0 ? allPublished[idx - 1] : null;
-  const next = idx < allPublished.length - 1 ? allPublished[idx + 1] : null;
-
-  const related = posts
-    .filter((p) => !p.draft && p.slug !== post.slug && p.tags.some((t) => post.tags.includes(t)))
-    .slice(0, 3);
-
-  return (
-    <div className="mt-16 pb-4" style={{ fontFamily: mono }}>
-      {post.closingLine && (
-        <p
-          className="text-center italic mb-8"
-          style={{ color: muted, fontSize: '15px', lineHeight: 1.7 }}
-        >
-          {post.closingLine}
-        </p>
-      )}
-
-      <div
-        className="mx-auto mb-10"
-        style={{ width: '60px', height: '1px', backgroundColor: `${teal}4D` }}
-      />
-
-      {(prev || next) && (
-        <div className="flex justify-between items-start gap-8 mb-12">
-          {prev ? (
-            <Link
-              to={`/posts/${prev.slug}`}
-              className="group flex flex-col gap-0.5 max-w-[45%] transition-opacity hover:opacity-80"
-            >
-              <span className="uppercase tracking-[0.12em] text-[10px] mb-1" style={{ color: muted }}>
-                ← previous
-              </span>
-              <span
-                className="text-[13px] group-hover:underline leading-snug"
-                style={{ color: isDarkMode ? '#eee8d5' : '#073642' }}
-              >
-                {prev.title}
-              </span>
-            </Link>
-          ) : <div />}
-
-          {next ? (
-            <Link
-              to={`/posts/${next.slug}`}
-              className="group flex flex-col gap-0.5 items-end max-w-[45%] text-right transition-opacity hover:opacity-80"
-            >
-              <span className="uppercase tracking-[0.12em] text-[10px] mb-1" style={{ color: muted }}>
-                next →
-              </span>
-              <span
-                className="text-[13px] group-hover:underline leading-snug"
-                style={{ color: isDarkMode ? '#eee8d5' : '#073642' }}
-              >
-                {next.title}
-              </span>
-            </Link>
-          ) : <div />}
-        </div>
-      )}
-
-      {related.length > 0 && (
-        <div>
-          <p className="uppercase tracking-[0.12em] text-[10px] mb-4" style={{ color: muted }}>
-            more on this topic
-          </p>
-          <div className="flex flex-col gap-3">
-            {related.map((r) => (
-              <Link
-                key={r.slug}
-                to={`/posts/${r.slug}`}
-                className="group flex items-baseline justify-between gap-4 py-2 border-b transition-opacity hover:opacity-70"
-                style={{ borderColor: isDarkMode ? 'rgba(101,123,131,0.15)' : 'rgba(147,161,161,0.2)' }}
-              >
-                <span
-                  className="text-[13px] group-hover:underline"
-                  style={{ color: isDarkMode ? '#eee8d5' : '#073642' }}
-                >
-                  {r.title}
-                </span>
-                <span className="text-[11px] whitespace-nowrap" style={{ color: muted }}>
-                  {r.date}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
@@ -696,8 +549,8 @@ const PostViewer = () => {
               isDarkMode={isDarkMode}
             />
 
-            {/* Main content — P4: tighter line length */}
-            <article className="flex-1 min-w-0" style={{ maxWidth: '620px' }}>
+            {/* Main content */}
+            <article className="flex-1 min-w-0 max-w-2xl">
               <PostHeader
                 title={post.title}
                 tags={post.tags}
@@ -708,9 +561,10 @@ const PostViewer = () => {
                 quote={post.quote}
                 isDarkMode={isDarkMode}
                 lightBg={post.lightBg}
+                aspectRatio={post.aspectRatio}
+                objectFit={post.objectFit}
               />
-              <PostBody sections={post.sections} isDarkMode={isDarkMode} />
-              <PostFooter post={post} isDarkMode={isDarkMode} />
+              <PostBody sections={post.sections} activeId={activeId} isDarkMode={isDarkMode} />
             </article>
 
 

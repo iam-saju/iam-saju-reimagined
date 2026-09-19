@@ -8,20 +8,20 @@ describe('useTheme', () => {
     localStorage.getItem = vi.fn(() => null);
   });
 
-  it('returns dark mode false by default when no localStorage', () => {
+  it('returns dark mode true by default when no localStorage', () => {
     const { result } = renderHook(() => useTheme());
-    expect(result.current.isDarkMode).toBe(false);
+    expect(result.current.isDarkMode).toBe(true);
   });
 
   it('toggles theme correctly', () => {
     const { result } = renderHook(() => useTheme());
-    
+
     act(() => {
       result.current.toggleTheme();
     });
 
-    expect(result.current.isDarkMode).toBe(true);
-    expect(localStorage.setItem).toHaveBeenCalledWith('theme-preference', 'true');
+    expect(result.current.isDarkMode).toBe(false);
+    expect(localStorage.setItem).toHaveBeenCalledWith('theme-preference', 'false');
   });
 
   it('persists theme to localStorage', () => {

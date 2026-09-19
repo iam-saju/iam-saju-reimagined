@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -37,43 +38,210 @@ const renderInlineCode = (
 };
 
 // ── Helper: Basic Python Syntax Highlighting ──────────────────────────────
-const highlightPython = (code: string, isDarkMode: boolean) => {
-  const keyword = isDarkMode ? '#cb4b16' : '#cb4b16'; // Orange
-  const stringColor = isDarkMode ? '#859900' : '#859900'; // Green
-  const commentColor = isDarkMode ? '#586e75' : '#93a1a1'; // Muted
-  const func = isDarkMode ? '#268bd2' : '#268bd2'; // Blue
-  const keywordList = ['from', 'import', 'def', 'return', 'if', 'else', 'for', 'in', 'while', 'as', 'with', 'try', 'except', 'None', 'True', 'False', 'yield', 'class'];
+// Processes in order: comments → strings (hidden as placeholders) →
+// keywords → function names → restore placeholders. This order prevents
+// keyword regex from matching inside string/comment tokens.
+const highlightPython = (code: string, isDarkMode: boolean): string => {
+  const keyword     = '#cb4b16'; // orange — all keywords uniformly
+  const stringColor = isDarkMode ? '#859900' : '#6a7c00'; // green (darker in light)
+  const commentColor = isDarkMode ? '#586e75' : '#5d7374'; // muted (darker in light)
+  const func        = '#268bd2'; // blue
+  const number      = isDarkMode ? '#d33682' : '#b01e6e'; // magenta
+  const keywordList = [
+    'from','import','def','return','if','elif','else','for','in','while',
+    'as','with','try','except','finally','raise','pass','break','continue',
+    'None','True','False','yield','class','and','or','not','is','lambda',
+  ];
 
   const placeholders: string[] = [];
-  let colored = code;
+  let colored = code
+    // Escape HTML so dangerouslySetInnerHTML is safe
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-  // 1. Comments - hide them
-  colored = colored.replace(/(#.*)/g, (match) => {
-    placeholders.push(`<span style="color: ${commentColor}">${match}</span>`);
-    return `____PYHL_${placeholders.length - 1}____`;
+  // 1. Hide triple-quoted strings
+  colored = colored.replace(/("""[\s\S]*?"""|'''[\s\S]*?''')/g, (m) => {
+    placeholders.push(`<span style="color:${stringColor}">${m}</span>`);
+    return `\x00${placeholders.length - 1}\x00`;
   });
 
-  // 2. Strings - hide them
-  colored = colored.replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, (match) => {
-    placeholders.push(`<span style="color: ${stringColor}">${match}</span>`);
-    return `____PYHL_${placeholders.length - 1}____`;
+  // 2. Hide single-line comments
+  colored = colored.replace(/(#[^\n]*)/g, (m) => {
+    placeholders.push(`<span style="color:${commentColor}">${m}</span>`);
+    return `\x00${placeholders.length - 1}\x00`;
   });
 
-  // 3. Keywords
+  // 3. Hide single/double-quoted strings
+  colored = colored.replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, (m) => {
+    placeholders.push(`<span style="color:${stringColor}">${m}</span>`);
+    return `\x00${placeholders.length - 1}\x00`;
+  });
+
+  // 4. Keywords (uniform colour — fixes if/else/elif inconsistency)
   keywordList.forEach(k => {
-    const regex = new RegExp(`\\b${k}\\b`, 'g');
-    colored = colored.replace(regex, `<span style="color: ${keyword}">${k}</span>`);
+    colored = colored.replace(
+      new RegExp(`\\b(${k})\\b`, 'g'),
+      `<span style="color:${keyword}">$1</span>`
+    );
   });
 
-  // 4. Function calls/defs
-  colored = colored.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\b\s*\(/g, (_, p1) => `<span style="color: ${func}">${p1}</span>(`);
+  // 5. Numbers
+  colored = colored.replace(/\b(\d+\.?\d*)\b/g,
+    `<span style="color:${number}">$1</span>`);
 
-  // 5. Restore hidden parts in reverse
+  // 6. Function calls / definitions
+  colored = colored.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)(?=\s*\()/g,
+    `<span style="color:${func}">$1</span>`);
+
+  // 7. Restore placeholders (reverse order avoids index corruption)
   for (let i = placeholders.length - 1; i >= 0; i--) {
-    colored = colored.replace(`____PYHL_${i}____`, placeholders[i]);
+    colored = colored.replace(`\x00${i}\x00`, placeholders[i]);
   }
 
-  return <span dangerouslySetInnerHTML={{ __html: colored }} />;
+  return colored;
+};
+
+// Plain HTML escape — used for non-python blocks (JS snippets, ascii diagrams,
+// tables) that shouldn't be run through the python highlighter.
+const escapeHtml = (s: string): string =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+// ── CodeBlock component — line numbers + copy + slim header ────────────────
+const CodeBlock = ({
+  code,
+  isDarkMode,
+  lang,
+}: {
+  code: string;
+  isDarkMode: boolean;
+  lang?: string;
+}) => {
+  const [copied, setCopied] = useState(false);
+  const label = (lang && lang.trim()) || 'python';
+  const highlight = label === 'python';
+
+  const codeBg     = isDarkMode ? '#15100d' : '#eae4d4'; // near-black brown = better contrast
+  const codeBorder = isDarkMode ? 'rgba(168,157,140,0.12)' : 'rgba(147,161,161,0.25)';
+  const headerBg   = isDarkMode ? 'rgba(21,16,13,0.95)' : '#d8d2c2';
+  const gutterBg   = isDarkMode ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.04)';
+  const gutterColor = isDarkMode ? '#5a4d40' : '#a0a8a8';
+  const labelColor  = isDarkMode ? '#7a6a58' : '#7a8890';
+  const codeText   = isDarkMode ? '#a89d8c' : '#3d5059';
+  const mono = "'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', Menlo, Monaco, Consolas, monospace";
+
+  const lines = code.split('\n');
+  const lineCount = lines.length;
+  const gutterWidth = lineCount >= 100 ? 42 : lineCount >= 10 ? 34 : 26;
+
+  const copyCode = () => {
+    navigator.clipboard.writeText(code).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <div
+      className="mt-6 rounded-xl overflow-hidden"
+      style={{
+        border: `1px solid ${codeBorder}`,
+        boxShadow: isDarkMode
+          ? '0 4px 20px rgba(0,0,0,0.35)'
+          : '0 2px 12px rgba(0,0,0,0.07)',
+      }}
+    >
+      {/* ── Slim header: language label + copy button (no dots) ── */}
+      <div
+        className="flex items-center justify-between px-4 py-2"
+        style={{ backgroundColor: headerBg, borderBottom: `1px solid ${codeBorder}` }}
+      >
+        {/* left side intentionally empty — clean look */}
+        <span style={{ width: `${gutterWidth}px` }} />
+
+        {/* right: language label + copy */}
+        <div className="flex items-center gap-3">
+          <span
+            className="text-[10px] tracking-[0.08em] uppercase"
+            style={{ fontFamily: mono, color: labelColor }}
+          >
+            {label}
+          </span>
+          <button
+            onClick={copyCode}
+            title="Copy code"
+            className="flex items-center gap-1 text-[10px] transition-all duration-150 hover:opacity-70"
+            style={{ fontFamily: mono, color: copied ? '#859900' : labelColor }}
+          >
+            {copied ? (
+              <span>✓ copied</span>
+            ) : (
+              /* clipboard icon inline SVG */
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M4 2a2 2 0 0 1 2-2h4.586A2 2 0 0 1 12 .586L14.414 3A2 2 0 0 1 15 4.414V12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2 0v10h7V4.414L10.586 2H6z"/>
+                <path d="M1 4a1 1 0 0 0-1 1v9a2 2 0 0 0 2 2h7a1 1 0 1 0 0-2H2V5a1 1 0 0 0-1-1z"/>
+              </svg>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Code area: gutter + syntax-highlighted lines ── */}
+      <div
+        className="relative overflow-x-auto"
+        style={{ backgroundColor: codeBg }}
+      >
+        {/* Right-edge fade — signals horizontal overflow */}
+        <div
+          className="pointer-events-none absolute top-0 right-0 bottom-0 z-10"
+          style={{
+            width: '40px',
+            background: `linear-gradient(to right, transparent, ${codeBg})`,
+          }}
+        />
+
+        <table
+          className="w-full border-collapse"
+          style={{ fontFamily: mono, fontSize: '11.5px', lineHeight: 1.8, color: codeText }}
+        >
+          <tbody>
+            {lines.map((line, i) => (
+              <tr key={i} className="group">
+                {/* Gutter */}
+                <td
+                  className="select-none text-right align-top py-0"
+                  style={{
+                    width: `${gutterWidth}px`,
+                    minWidth: `${gutterWidth}px`,
+                    paddingRight: '10px',
+                    paddingLeft: '8px',
+                    paddingTop: i === 0 ? '20px' : '0',
+                    paddingBottom: i === lines.length - 1 ? '20px' : '0',
+                    backgroundColor: gutterBg,
+                    color: gutterColor,
+                    borderRight: `1px solid ${codeBorder}`,
+                    userSelect: 'none',
+                  }}
+                >
+                  {i + 1}
+                </td>
+                {/* Code line */}
+                <td
+                  className="align-top whitespace-pre"
+                  style={{
+                    paddingLeft: '20px',
+                    paddingRight: '40px', // leave room for fade
+                    paddingTop: i === 0 ? '20px' : '0',
+                    paddingBottom: i === lines.length - 1 ? '20px' : '0',
+                    letterSpacing: '0.01em',
+                  }}
+                  dangerouslySetInnerHTML={{ __html: highlight ? highlightPython(line, isDarkMode) : escapeHtml(line) }}
+                />
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 };
 
 // ── Back To Top Button ─────────────────────────────────────────────────────
@@ -96,10 +264,10 @@ const BackToTop = ({ isDarkMode }: { isDarkMode: boolean }) => {
       aria-label="Back to top"
       className="fixed bottom-8 right-8 z-50 w-9 h-9 flex items-center justify-center transition-all duration-200 hover:opacity-70"
       style={{
-        backgroundColor: isDarkMode ? '#073642' : '#eee8d5',
-        border: `1px solid ${isDarkMode ? '#657b83' : '#93a1a1'}40`,
+        backgroundColor: isDarkMode ? '#241d18' : '#eee8d5',
+        border: `1px solid ${isDarkMode ? '#7d7263' : '#93a1a1'}40`,
         borderRadius: '6px',
-        color: isDarkMode ? '#93a1a1' : '#586e75',
+        color: isDarkMode ? '#a89d8c' : '#586e75',
         fontSize: '14px',
         boxShadow: isDarkMode ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 12px rgba(0,0,0,0.08)',
       }}
@@ -138,8 +306,8 @@ const TableOfContents = ({
   activeId: string;
   isDarkMode: boolean;
 }) => {
-  const muted = isDarkMode ? '#657b83' : '#93a1a1';
-  const mono = "'Geist Mono', monospace";
+  const muted = isDarkMode ? '#7d7263' : '#93a1a1';
+  const mono = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif";
 
   const handleClick = (id: string) => {
     const el = document.getElementById(id);
@@ -153,10 +321,11 @@ const TableOfContents = ({
     >
       <button
         onClick={() => { window.location.href = '/posts'; }}
-        className="text-[11px] transition-all duration-150 hover:opacity-70 text-left w-fit"
+        className="flex items-center gap-1.5 text-[11px] transition-all duration-150 hover:opacity-70 hover:-translate-x-0.5 text-left w-fit"
         style={{ color: '#268bd2', fontFamily: mono }}
       >
-        ← all posts
+        <ArrowLeft className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+        all posts
       </button>
 
       {/* Minimal vertical line ToC */}
@@ -164,7 +333,7 @@ const TableOfContents = ({
         {/* Track line left border */}
         <div 
           className="absolute left-0 top-0 bottom-0 w-[1px]" 
-          style={{ backgroundColor: isDarkMode ? 'rgba(101,123,131,0.2)' : 'rgba(147,161,161,0.2)' }} 
+          style={{ backgroundColor: isDarkMode ? 'rgba(168,157,140,0.18)' : 'rgba(147,161,161,0.2)' }}
         />
         
         <nav className="flex flex-col gap-3 relative py-2">
@@ -175,7 +344,7 @@ const TableOfContents = ({
                 {isActive && (
                   <div 
                     className="absolute -left-[0.5px] w-[2px] h-full rounded-full transition-all duration-300" 
-                    style={{ backgroundColor: isDarkMode ? '#eee8d5' : '#073642' }} 
+                    style={{ backgroundColor: isDarkMode ? '#ede4d3' : '#073642' }}
                   />
                 )}
                 <button
@@ -183,7 +352,7 @@ const TableOfContents = ({
                   className="block w-full text-left pl-4 py-0 transition-colors duration-200 text-[11px] leading-relaxed"
                   style={{
                     fontFamily: mono,
-                    color: isActive ? (isDarkMode ? '#eee8d5' : '#073642') : muted,
+                    color: isActive ? (isDarkMode ? '#ede4d3' : '#073642') : muted,
                     fontWeight: isActive ? 500 : 400,
                   }}
                 >
@@ -206,31 +375,22 @@ const PostHeader = ({
   tags,
   date,
   readTime,
-  image,
-  imagePosition,
   quote,
   isDarkMode,
-  lightBg,
-  aspectRatio,
-  objectFit,
 }: {
   title: string;
   tags: string[];
   date: string;
   readTime: string;
-  image: string;
-  imagePosition?: string;
   quote?: string;
   isDarkMode: boolean;
-  lightBg?: boolean;
-  aspectRatio?: string;
-  objectFit?: 'cover' | 'contain';
 }) => {
-  const heading = isDarkMode ? '#fdf6e3' : '#073642';
+  const heading = isDarkMode ? '#ede4d3' : '#073642';
   const green = '#859900';
-  const muted = isDarkMode ? '#93a1a1' : '#586e75';
+  const muted = isDarkMode ? '#a89d8c' : '#586e75';
   const accent = '#b58900';
-  const mono = "'Geist Mono', monospace";
+  const mono = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif";
+  const gothic = "'Grenze Gotisch', 'Instrument Serif', Georgia, serif";
   const [copied, setCopied] = useState(false);
 
   const handleShare = () => {
@@ -257,10 +417,10 @@ const PostHeader = ({
         </button>
       </div>
 
-      {/* Title — serif, headers only */}
+      {/* Title — Grenze Gotisch display */}
       <h1
-        className="font-serif text-3xl sm:text-4xl md:text-[3.25rem] font-normal leading-[1.1] tracking-[-0.01em]"
-        style={{ color: heading }}
+        className="text-4xl sm:text-5xl md:text-[3.6rem] font-medium leading-[1.12] tracking-[-0.01em]"
+        style={{ color: heading, fontFamily: gothic }}
       >
         {title}
       </h1>
@@ -282,34 +442,6 @@ const PostHeader = ({
             {tag}
           </span>
         ))}
-      </div>
-
-      {/* Cover image — rounded corners, soft shadow */}
-      <div
-        className="overflow-hidden rounded-xl"
-        style={{
-          maxWidth: '680px',
-          aspectRatio: aspectRatio === 'square' ? '1/1' : 
-                       (aspectRatio === 'natural' ? 'auto' : '4/3'),
-          overflow: 'hidden',
-          boxShadow: isDarkMode
-            ? '0 8px 32px rgba(0,0,0,0.35)'
-            : '0 4px 20px rgba(0,0,0,0.08)',
-        }}
-      >
-        <img
-          src={image}
-          alt={title}
-          className={`w-full h-full object-${objectFit || 'cover'}`}
-          style={{
-            objectPosition: imagePosition || 'center',
-            filter: isDarkMode
-              ? lightBg
-                ? 'invert(1) hue-rotate(180deg) brightness(0.85)'
-                : 'brightness(0.8)'
-              : 'none',
-          }}
-        />
       </div>
 
       {/* Blockquote callout — Apple-style inset card */}
@@ -343,13 +475,10 @@ const PostBody = ({
   activeId: string;
   isDarkMode: boolean;
 }) => {
-  const sectionHeading = isDarkMode ? '#eee8d5' : '#073642';
-  const body = isDarkMode ? '#93a1a1' : '#586e75';
-  const divider = isDarkMode ? 'rgba(101,123,131,0.15)' : 'rgba(147,161,161,0.2)';
-  const codeBg = isDarkMode ? '#001b22' : '#f5f0e1';
-  const codeBorder = isDarkMode ? 'rgba(38,139,210,0.1)' : 'rgba(147,161,161,0.2)';
-  const codeText = isDarkMode ? '#839496' : '#586e75';
-  const mono = "'Geist Mono', monospace";
+  const sectionHeading = isDarkMode ? '#ede4d3' : '#073642';
+  const body = isDarkMode ? '#a89d8c' : '#586e75';
+  const divider = isDarkMode ? 'rgba(168,157,140,0.14)' : 'rgba(147,161,161,0.2)';
+  const mono = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif";
 
   return (
     <div>
@@ -370,7 +499,7 @@ const PostBody = ({
           {/* Section number label + heading — serif, headers only */}
           <p
             className="text-[10px] font-medium mb-1.5 tracking-[0.12em] uppercase"
-            style={{ fontFamily: mono, color: isDarkMode ? '#4a6a72' : '#93a1a1' }}
+            style={{ fontFamily: mono, color: isDarkMode ? '#7a6a58' : '#93a1a1' }}
           >
             {String(idx + 1).padStart(2, '0')}.
           </p>
@@ -397,49 +526,9 @@ const PostBody = ({
             )}
           </div>
 
-          {/* Code block — Apple dev docs style */}
+          {/* Code block — redesigned with line numbers, copy button, slim header */}
           {section.code && (
-            <div
-              className="mt-6 rounded-xl overflow-hidden"
-              style={{
-                border: `1px solid ${codeBorder}`,
-                boxShadow: isDarkMode
-                  ? '0 4px 16px rgba(0,0,0,0.3)'
-                  : '0 2px 12px rgba(0,0,0,0.06)',
-              }}
-            >
-              {/* Code title bar */}
-              <div
-                className="flex items-center gap-1.5 px-4 py-2.5"
-                style={{
-                  backgroundColor: isDarkMode ? 'rgba(0,43,54,0.9)' : '#e0dbd0',
-                  borderBottom: `1px solid ${codeBorder}`,
-                }}
-              >
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#dc322f' }} />
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#b58900' }} />
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#859900' }} />
-                <span
-                  className="ml-2 text-[10px] tracking-wide"
-                  style={{ fontFamily: mono, color: isDarkMode ? '#4a6a72' : '#93a1a1' }}
-                >
-                  python
-                </span>
-              </div>
-              <pre
-                className="text-[11.5px] p-6 overflow-x-auto"
-                style={{
-                  fontFamily: mono,
-                  backgroundColor: codeBg,
-                  color: codeText,
-                  lineHeight: 1.85,
-                  margin: 0,
-                  letterSpacing: '0.01em',
-                }}
-              >
-                <code>{highlightPython(section.code, isDarkMode)}</code>
-              </pre>
-            </div>
+            <CodeBlock code={section.code} isDarkMode={isDarkMode} lang={section.lang} />
           )}
           {/* Section image */}
           {section.image && (
@@ -514,8 +603,8 @@ const PostViewer = () => {
 
   if (!post) return null;
 
-  const bg = isDarkMode ? '#002b36' : '#fdf6e3';
-  const body = isDarkMode ? '#93a1a1' : '#586e75';
+  const bg = isDarkMode ? '#1a1512' : '#fdf6e3';
+  const body = isDarkMode ? '#a89d8c' : '#586e75';
 
   return (
     <div
@@ -541,7 +630,7 @@ const PostViewer = () => {
 
         <div className="max-w-5xl mx-auto px-5 sm:px-8 pb-20 pt-0">
           {/* Three-column layout */}
-          <div className="flex gap-12 items-start mt-4">
+          <div className="flex gap-12 items-start">
             {/* Sticky ToC */}
             <TableOfContents
               sections={post.sections}
@@ -556,13 +645,8 @@ const PostViewer = () => {
                 tags={post.tags}
                 date={post.date}
                 readTime={post.readTime}
-                image={post.image}
-                imagePosition={post.imagePosition}
                 quote={post.quote}
                 isDarkMode={isDarkMode}
-                lightBg={post.lightBg}
-                aspectRatio={post.aspectRatio}
-                objectFit={post.objectFit}
               />
               <PostBody sections={post.sections} activeId={activeId} isDarkMode={isDarkMode} />
             </article>

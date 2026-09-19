@@ -328,7 +328,6 @@ const DonutTerminal: React.FC<DonutTerminalProps> = ({ isVisible, isClosing = fa
   const sitePages = [
     { slug: 'home', path: '/', desc: 'landing page' },
     { slug: 'posts', path: '/posts', desc: 'blog posts & writing' },
-    { slug: 'archive', path: '/archive', desc: 'visual archive' },
   ];
 
   const sitePosts = [
@@ -429,7 +428,7 @@ github   : iam-saju
       }
 
       case 'open': case 'goto': case 'cd': {
-        if (!args[0]) { setCommandOutput('usage: open <slug>\npages: home, posts, archive\nposts: ' + sitePosts.map(p => p.slug).join(', ')); return; }
+        if (!args[0]) { setCommandOutput('usage: open <slug>\npages: home, posts\nposts: ' + sitePosts.map(p => p.slug).join(', ')); return; }
         const target = args[0];
         const page = sitePages.find(p => p.slug === target);
         if (page) {
@@ -454,7 +453,6 @@ github   : iam-saju
       case 'ls': {
         let output = 'drwxr-xr-x  saju  ~/portfolio\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
         output += '  📁 posts/          blog posts & writing\n';
-        output += '  📁 archive/        visual archive & artwork\n';
         output += '  📄 about           who is saju\n';
         output += '  🍩 donut.sh        you are here\n';
         output += `\n  ${sitePosts.length} posts · ${sitePages.length} pages`;

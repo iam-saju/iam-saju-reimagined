@@ -6,10 +6,10 @@ interface HeroProps {
 }
 
 const Hero = ({ isDarkMode = true }: HeroProps) => {
-  const heading = isDarkMode ? '#E6EDF3' : '#073642';
-  const body = isDarkMode ? '#8B949E' : '#586e75';
-  const muted = isDarkMode ? '#6E7681' : '#93a1a1';
-  const bright = isDarkMode ? '#E6EDF3' : '#073642';
+  const heading = isDarkMode ? '#ede4d3' : '#073642';
+  const body = isDarkMode ? '#a89d8c' : '#586e75';
+  const muted = isDarkMode ? '#7d7263' : '#93a1a1';
+  const bright = isDarkMode ? '#ede4d3' : '#073642';
 
   const [typedText, setTypedText] = useState('');
   const [showCursor] = useState(true);
@@ -32,7 +32,7 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
   }, []);
 
   return (
-    <section id="about" className="flex-1 relative flex items-center justify-center font-serif overflow-hidden">
+    <section id="about" className="flex-1 relative flex items-center justify-start font-serif overflow-hidden">
       <style>{`
         @keyframes cursor-blink {
           0%, 100% { opacity: 1; }
@@ -40,15 +40,19 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
         }
       `}</style>
 
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ overflow: 'visible', zIndex: 0 }}>
-        <HeroDonut />
-      </div>
+      <div className="relative w-full max-w-6xl mx-auto h-full flex items-center">
+        <div className="absolute top-0 bottom-0 left-1/2 right-0 flex items-center justify-center pointer-events-none" style={{ overflow: 'visible', zIndex: 0 }}>
+          <HeroDonut />
+        </div>
 
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4 pt-20 sm:pt-4 relative z-10">
+        <div className="max-w-xl px-6 sm:px-10 lg:px-16 py-4 pt-20 sm:pt-4 pb-16 sm:pb-24 relative z-10">
 
-        <div className="space-y-6">
+        <div
+          className="space-y-6 text-[15px] sm:text-base leading-relaxed"
+          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif", color: body }}
+        >
           <h1
-            className="font-serif text-4xl sm:text-5xl md:text-[3.5rem] font-normal leading-[1.1] mb-6"
+            className="font-serif text-[2.1rem] sm:text-[2.625rem] md:text-[3.15rem] font-normal leading-[1.1]"
             style={{ color: heading }}
           >
             {typedText}
@@ -63,55 +67,41 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
             )}
           </h1>
 
-          <div
-            className="space-y-3 text-sm sm:text-base leading-relaxed"
-            style={{ fontFamily: "'Geist Mono', monospace", color: body }}
-          >
+          <div className="space-y-3">
             <p>
               i'm <span style={{ color: bright, fontWeight: 600 }}>saju</span>. :)
             </p>
 
             <p>
-              building <span style={{ fontWeight: 'bold' }}>compute systems</span> and pushing them until they fail.
+              building <span style={{ fontWeight: 600 }}>systems</span> and pushing them until they fail.
             </p>
 
             <p style={{ color: muted }}>
-              currently exploring <span style={{ fontWeight: 'bold' }}>gpu infrastructure</span>, <span style={{ fontWeight: 'bold' }}>distributed systems</span>, and how <span style={{ fontWeight: 'bold' }}>ml systems</span> behave under stress.
+              currently exploring{' '}
+              <span style={{ fontWeight: 600 }}>
+                reinforcement learning, AI agents, inference systems, and compute
+              </span>{' '}
+              — building things, breaking them, and figuring out what happens underneath.
             </p>
           </div>
 
-          <div className="pt-4 space-y-3" style={{ fontFamily: "'Geist Mono', monospace" }}>
-            <h3 className="text-base sm:text-lg font-medium">experiments</h3>
-            <ul className="space-y-1.5 text-sm sm:text-base">
-              {[
-                { text: 'building infra marketplaces and managing compute clusters', weight: ['infra'] },
-                { text: 'exploring ml systems until they work or break', weight: ['ml'] },
-                { text: 'experimenting with blockchain protocols', weight: ['blockchain'] },
-                { text: 'writing servers and protocols from scratch', weight: ['servers', 'protocols'] },
-              ].map((item, i) => (
-                <li key={i}>
-                  •{' '}
-                  <a href="/posts" className="transition-colors hover:underline">
-                    {item.text.split(' ').map((word, j) => {
-                      const cleanWord = word.replace(/[^a-zA-Z]/g, '').toLowerCase();
-                      const isWeight = item.weight.some(w => cleanWord === w.toLowerCase());
-                      return (
-                        <span key={j} style={isWeight ? { fontWeight: 'bold' } : undefined}>
-                          {word}{' '}
-                        </span>
-                      );
-                    })}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ul className="space-y-4">
+            {[
+              <>built <span style={{ fontWeight: 600 }}>buoyancy labs</span> — multilingual voice &amp; whatsapp agents for Indian businesses, handling code-switched language like Hinglish, Tanglish, and Manglish</>,
+              <>writing <span style={{ fontWeight: 600 }}>adversarial prompts</span> and grading LLM outputs against golden responses</>,
+              <>built <span style={{ fontWeight: 600 }}>market01</span>, a GPU rental marketplace, and <span style={{ fontWeight: 600 }}>qubit</span>, a Telegram cloud storage bot</>,
+              <>building <span style={{ fontWeight: 600 }}>RL Painter</span> — training coding agents to create visual art through reinforcement learning</>,
+            ].map((item, i) => (
+              <li key={i} className="flex gap-2.5">
+                <span aria-hidden="true" style={{ color: muted }}>•</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
 
-          <div className="pt-4 space-y-2" style={{ fontFamily: "'Geist Mono', monospace" }}>
-            <p className="text-sm" style={{ color: muted }}>
-              build until it breaks. inspect the failure. repeat.
-            </p>
-            <p className="text-sm" style={{ color: muted }}>
+          <div className="space-y-2" style={{ color: muted }}>
+            <p>build until it breaks. inspect the failure. repeat.</p>
+            <p>
               <span
                 className="font-bold"
                 style={{
@@ -126,27 +116,23 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
             </p>
           </div>
 
-          <div className="pt-4" style={{ fontFamily: "'Geist Mono', monospace" }}>
-            <p className="text-sm" style={{ color: body }}>
-              <span style={{ fontWeight: 'bold' }}>tweets</span>{' '}
-              <a
-                href="https://x.com/saju0nx"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: '#00BFFF' }}
-                className="hover:underline underline-offset-4"
-              >
-                @saju0nx
-              </a>
-            </p>
-          </div>
+          <p>
+            <span style={{ fontWeight: 600 }}>tweets</span>{' '}
+            <a
+              href="https://x.com/saju0nx"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: '#00BFFF' }}
+              className="hover:underline underline-offset-4"
+            >
+              @saju0nx
+            </a>
+          </p>
 
-          <p
-            className="hidden lg:block text-sm italic pt-2"
-            style={{ fontFamily: "'Geist Mono', monospace", color: muted }}
-          >
+          <p className="hidden lg:block text-sm italic" style={{ color: muted }}>
             enter terminal for shift + t
           </p>
+        </div>
         </div>
       </div>
     </section>

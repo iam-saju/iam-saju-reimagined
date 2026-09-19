@@ -3,15 +3,16 @@ import { useState, useEffect } from 'react';
 const THEME_KEY = 'theme-preference';
 
 const getInitialTheme = (): boolean => {
-  if (typeof window === 'undefined') return false;
+  // Dark mode is the default; a saved boolean preference overrides it.
+  if (typeof window === 'undefined') return true;
 
   try {
     const saved = window.localStorage.getItem(THEME_KEY);
-    if (!saved) return false;
+    if (!saved) return true;
     const parsed = JSON.parse(saved);
-    return typeof parsed === 'boolean' ? parsed : false;
+    return typeof parsed === 'boolean' ? parsed : true;
   } catch {
-    return false;
+    return true;
   }
 };
 

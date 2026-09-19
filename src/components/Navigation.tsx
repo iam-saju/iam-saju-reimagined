@@ -71,7 +71,7 @@ const GlitchLink = ({
     <a
       href={href}
       className="transition-colors"
-      style={{ color, fontFamily: "'Geist Mono', monospace" }}
+      style={{ color, fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif" }}
       onMouseEnter={e => {
         e.currentTarget.style.color = hoverColor;
         startGlitch();
@@ -89,12 +89,11 @@ const GlitchLink = ({
 };
 
 const Navigation = ({ isDarkMode = true, onToggleTheme }: NavigationProps) => {
-  // Solarized colors
-  const bg = isDarkMode ? '#002b36' : '#fdf6e3';
-  const border = isDarkMode ? '#073642' : '#eee8d5';
-  const linkColor = isDarkMode ? '#839496' : '#657b83';
-  const linkHover = isDarkMode ? '#eee8d5' : '#073642';
-  const titleColor = isDarkMode ? '#eee8d5' : '#073642';
+  // Dark: black-brown composition · Light: Solarized light
+  const bg = isDarkMode ? '#1a1512' : '#fdf6e3';
+  const border = isDarkMode ? '#2a221c' : '#eee8d5';
+  const linkColor = isDarkMode ? '#a89d8c' : '#657b83';
+  const linkHover = isDarkMode ? '#ede4d3' : '#073642';
 
   return (
     <header 
@@ -102,25 +101,13 @@ const Navigation = ({ isDarkMode = true, onToggleTheme }: NavigationProps) => {
       style={{ 
         backgroundColor: `${bg}dd`, 
         borderColor: `${border}40`,
-        fontFamily: "'Geist Mono', monospace" 
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif" 
       }}
     >
-      <div className="max-w-4xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
-        {/* Logo - Left */}
-        <div className="flex-1">
-          <a 
-            href="/" 
-            className="font-serif text-xl sm:text-2xl font-bold tracking-tight hover:opacity-75 transition-opacity"
-            style={{ color: titleColor }}
-          >
-            saju
-          </a>
-        </div>
-
-        {/* Links - Center (Desktop) / Mobile simplified */}
-        <nav className="hidden sm:flex items-center justify-center gap-8 text-[13px] font-medium tracking-wide">
+      <div className="max-w-6xl mx-auto px-6 sm:px-10 lg:px-16 h-16 flex items-center justify-between">
+        {/* Links - Left (Desktop) / Mobile simplified */}
+        <nav className="hidden sm:flex items-center gap-8 text-[13px] font-medium tracking-wide">
           <GlitchLink text="posts" href="/posts" color={linkColor} hoverColor={linkHover} />
-          <GlitchLink text="archive" href="/archive" color={linkColor} hoverColor={linkHover} />
           <GlitchLink text="github" href="https://github.com/iam-saju" external color={linkColor} hoverColor={linkHover} />
         </nav>
 
@@ -159,7 +146,6 @@ const Navigation = ({ isDarkMode = true, onToggleTheme }: NavigationProps) => {
           {/* Mobile minimal menu for links */}
           <div className="sm:hidden flex items-center gap-2 ml-1">
              <a href="/posts" className="text-[11px] font-medium" style={{ color: linkColor }}>posts</a>
-             <a href="/archive" className="text-[11px] font-medium" style={{ color: linkColor }}>archive</a>
              <a
                href="https://github.com/iam-saju"
                target="_blank"

@@ -8,13 +8,13 @@ const Index = () => {
   const { isTerminalVisible } = useDonutTerminal();
   const { isDarkMode, toggleTheme } = useTheme();
 
-  // Solarized colors
-  const bg = isDarkMode ? '#002b36' : '#fdf6e3';
-  const text = isDarkMode ? '#839496' : '#657b83';
+  // Dark: black-brown composition · Light: Solarized light
+  const bg = isDarkMode ? '#1a1512' : '#fdf6e3';
+  const text = isDarkMode ? '#a89d8c' : '#657b83';
 
   return (
     <div
-      className="h-screen overflow-hidden flex flex-col relative"
+      className={`${isTerminalVisible ? 'h-screen overflow-hidden' : 'min-h-screen'} flex flex-col relative`}
       style={{ backgroundColor: bg, color: text }}
     >
       {/* Terminal mode: dark background */}

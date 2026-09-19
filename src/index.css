@@ -3,6 +3,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Georgia:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -233,28 +234,28 @@
   }
 
   .dark {
-    /* Solarized Dark palette */
-    --background: 193 100% 11%;
-    --foreground: 186 9% 55%;
-    --muted: 193 100% 8%;
-    --muted-foreground: 186 9% 45%;
+    /* Black-brown palette */
+    --background: 21 18% 9%;
+    --foreground: 37 14% 60%;
+    --muted: 24 20% 7%;
+    --muted-foreground: 35 12% 48%;
     --primary: 212 100% 60%;
     --primary-foreground: 0 0% 9%;
-    --card: 193 100% 14%;
-    --card-foreground: 186 9% 65%;
-    --border: 193 100% 20%;
-    --input: 193 100% 20%;
+    --card: 25 20% 14%;
+    --card-foreground: 35 14% 68%;
+    --border: 26 20% 17%;
+    --input: 26 20% 17%;
     --ring: 212 100% 60%;
-    
+
     /* Legacy dark variables for compatibility */
-    --dark-bg: #002b36;
-    --dark-text-primary: #839496;
-    --dark-text-secondary: #657b83;
-    --dark-text-muted: #586e75;
-    --dark-border: #073642;
+    --dark-bg: #1a1512;
+    --dark-text-primary: #a89d8c;
+    --dark-text-secondary: #8a7f70;
+    --dark-text-muted: #7d7263;
+    --dark-border: #2a221c;
     --accent: 212 100% 60%;
     --accent-hover: 212 100% 70%;
-    font-family: 'Geist Mono', 'Fira Code', monospace;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
   }
 
 }

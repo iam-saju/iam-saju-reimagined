@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import BackIcon from '@/components/icons/BackIcon';
 import { useTheme } from '@/hooks/useTheme';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -49,7 +49,7 @@ const Notes = () => {
           e.stopPropagation();
           onClick(tag);
         }}
-        className={`text-[10px] lowercase px-2.5 py-0.5 rounded-sm transition-all duration-200 ${
+        className={`text-[9px] lowercase px-2.5 py-0.5 rounded-sm transition-all duration-200 ${
           isComingSoon ? '' : 'cursor-pointer hover:scale-105 active:scale-95'
         }`}
         style={{
@@ -86,13 +86,13 @@ const Notes = () => {
       >
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between">
-            <span className="text-[10px]" style={{ fontFamily: mono, color: muted }}>
+            <span className="text-[9px]" style={{ fontFamily: mono, color: muted }}>
               {post.date}
             </span>
           </div>
 
           <h3
-            className="text-[26px] sm:text-[32px] font-medium leading-tight group-hover:text-[#268bd2] transition-colors mb-2"
+            className="text-[23px] sm:text-[28px] font-medium leading-tight group-hover:text-[#268bd2] transition-colors mb-2"
             style={{ color: heading, fontFamily: gothic }}
           >
             {post.title}
@@ -119,14 +119,14 @@ const Notes = () => {
             <div className="ml-auto">
               {post.draft ? (
                 <span
-                  className="text-[10px] opacity-50"
+                  className="text-[9px] opacity-50"
                   style={{ fontFamily: mono, color: muted }}
                 >
                   coming soon
                 </span>
               ) : (
                 <span
-                  className="text-[10px] flex items-center gap-1 transition-all duration-300 group-hover:translate-x-1"
+                  className="text-[9px] flex items-center gap-1 transition-all duration-300 group-hover:translate-x-1"
                   style={{ fontFamily: mono, color: link }}
                 >
                   read <span className="text-xs">→</span>
@@ -173,10 +173,10 @@ const Notes = () => {
             <div className="pb-6">
               <button
                 onClick={() => navigate('/')}
-                className="flex items-center gap-1.5 text-[11px] mb-4 transition-all duration-150 hover:opacity-70 hover:-translate-x-0.5 w-fit"
+                className="flex items-center gap-2 text-[11px] mb-4 transition-all duration-150 hover:opacity-70 hover:-translate-x-0.5 w-fit"
                 style={{ color: accent, fontFamily: mono }}
               >
-                <ArrowLeft className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+                <BackIcon className="w-4 h-4 shrink-0" />
                 home
               </button>
               <h1
@@ -186,7 +186,7 @@ const Notes = () => {
                 posts.
               </h1>
               <p
-                className="text-[12px] sm:text-sm leading-relaxed max-w-lg"
+                className="text-[10px] sm:text-sm leading-relaxed max-w-lg"
                 style={{ fontFamily: mono, color: muted, opacity: 0.8 }}
               >
                 random stuff i've written about, built, or experimented with.
@@ -195,11 +195,11 @@ const Notes = () => {
 
             {/* Tag Quick Filters */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <span className="text-[10px] opacity-40 uppercase tracking-widest pt-0.5" style={{ fontFamily: mono }}>FILTER:</span>
+              <span className="text-[9px] opacity-40 uppercase tracking-widest pt-0.5" style={{ fontFamily: mono }}>FILTER:</span>
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => setActiveTags([])}
-                  className="text-[10px] lowercase px-2.5 py-0.5 rounded-sm transition-all border shadow-sm"
+                  className="text-[9px] lowercase px-2.5 py-0.5 rounded-sm transition-all border shadow-sm"
                   style={{
                     fontFamily: mono,
                     color: activeTags.length === 0 ? '#ffffff' : muted,

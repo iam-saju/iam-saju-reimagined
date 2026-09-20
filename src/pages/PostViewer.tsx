@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import BackIcon from '@/components/icons/BackIcon';
 import { useTheme } from '@/hooks/useTheme';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -160,7 +160,7 @@ const CodeBlock = ({
         {/* right: language label + copy */}
         <div className="flex items-center gap-3">
           <span
-            className="text-[10px] tracking-[0.08em] uppercase"
+            className="text-[9px] tracking-[0.08em] uppercase"
             style={{ fontFamily: mono, color: labelColor }}
           >
             {label}
@@ -168,7 +168,7 @@ const CodeBlock = ({
           <button
             onClick={copyCode}
             title="Copy code"
-            className="flex items-center gap-1 text-[10px] transition-all duration-150 hover:opacity-70"
+            className="flex items-center gap-1 text-[9px] transition-all duration-150 hover:opacity-70"
             style={{ fontFamily: mono, color: copied ? '#859900' : labelColor }}
           >
             {copied ? (
@@ -200,7 +200,7 @@ const CodeBlock = ({
 
         <table
           className="w-full border-collapse"
-          style={{ fontFamily: mono, fontSize: '11.5px', lineHeight: 1.8, color: codeText }}
+          style={{ fontFamily: mono, fontSize: '10px', lineHeight: 1.8, color: codeText }}
         >
           <tbody>
             {lines.map((line, i) => (
@@ -268,7 +268,7 @@ const BackToTop = ({ isDarkMode }: { isDarkMode: boolean }) => {
         border: `1px solid ${isDarkMode ? '#7d7263' : '#93a1a1'}40`,
         borderRadius: '6px',
         color: isDarkMode ? '#a89d8c' : '#586e75',
-        fontSize: '14px',
+        fontSize: '12px',
         boxShadow: isDarkMode ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 12px rgba(0,0,0,0.08)',
       }}
     >
@@ -321,10 +321,10 @@ const TableOfContents = ({
     >
       <button
         onClick={() => { window.location.href = '/posts'; }}
-        className="flex items-center gap-1.5 text-[11px] transition-all duration-150 hover:opacity-70 hover:-translate-x-0.5 text-left w-fit"
+        className="flex items-center gap-2 text-[11px] transition-all duration-150 hover:opacity-70 hover:-translate-x-0.5 text-left w-fit"
         style={{ color: '#268bd2', fontFamily: mono }}
       >
-        <ArrowLeft className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
+        <BackIcon className="w-4 h-4 shrink-0" />
         all posts
       </button>
 
@@ -349,7 +349,7 @@ const TableOfContents = ({
                 )}
                 <button
                   onClick={() => handleClick(section.id)}
-                  className="block w-full text-left pl-4 py-0 transition-colors duration-200 text-[11px] leading-relaxed"
+                  className="block w-full text-left pl-4 py-0 transition-colors duration-200 text-[9px] leading-relaxed"
                   style={{
                     fontFamily: mono,
                     color: isActive ? (isDarkMode ? '#ede4d3' : '#073642') : muted,
@@ -404,7 +404,7 @@ const PostHeader = ({
     <div className="mb-10 space-y-4">
       {/* Date, read time, and share button block immediately above title */}
       <div 
-        className="flex items-center justify-between uppercase tracking-[0.1em] text-[10px] mb-3" 
+        className="flex items-center justify-between uppercase tracking-[0.1em] text-[9px] mb-3" 
         style={{ fontFamily: mono, color: muted }}
       >
         <span>{date} — {readTime}</span>
@@ -430,7 +430,7 @@ const PostHeader = ({
         {tags.map((tag) => (
           <span
             key={tag}
-            className="text-[11px] lowercase px-2.5 py-0.5"
+            className="text-[9px] lowercase px-2.5 py-0.5"
             style={{
               fontFamily: mono,
               color: green,
@@ -498,7 +498,7 @@ const PostBody = ({
           >
           {/* Section number label + heading — serif, headers only */}
           <p
-            className="text-[10px] font-medium mb-1.5 tracking-[0.12em] uppercase"
+            className="text-[9px] font-medium mb-1.5 tracking-[0.12em] uppercase"
             style={{ fontFamily: mono, color: isDarkMode ? '#7a6a58' : '#93a1a1' }}
           >
             {String(idx + 1).padStart(2, '0')}.
@@ -517,7 +517,7 @@ const PostBody = ({
               para.trim() ? (
                 <p
                   key={i}
-                  className="text-[13.5px] leading-[1.85]"
+                  className="text-[12px] leading-[1.85]"
                   style={{ fontFamily: mono, color: body }}
                 >
                   {renderInlineCode(para.trim(), isDarkMode, mono)}
@@ -628,7 +628,18 @@ const PostViewer = () => {
           }
         `}</style>
 
-        <div className="max-w-5xl mx-auto px-5 sm:px-8 pb-20 pt-0">
+        <div className="max-w-6xl mx-auto px-6 sm:px-10 lg:px-16 pb-20 pt-0">
+          {/* Back link — the sticky ToC (with its own copy) is hidden below md, so this
+              is the only way back to /posts on mobile */}
+          <button
+            onClick={() => { window.location.href = '/posts'; }}
+            className="md:hidden flex items-center gap-2 text-[11px] mb-6 transition-all duration-150 hover:opacity-70 hover:-translate-x-0.5 text-left w-fit"
+            style={{ color: '#268bd2', fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif" }}
+          >
+            <BackIcon className="w-4 h-4 shrink-0" />
+            all posts
+          </button>
+
           {/* Three-column layout */}
           <div className="flex gap-12 items-start">
             {/* Sticky ToC */}

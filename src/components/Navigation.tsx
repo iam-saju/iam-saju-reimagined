@@ -106,7 +106,7 @@ const Navigation = ({ isDarkMode = true, onToggleTheme }: NavigationProps) => {
     >
       <div className="max-w-6xl mx-auto px-6 sm:px-10 lg:px-16 h-16 flex items-center justify-between">
         {/* Links - Left (Desktop) / Mobile simplified */}
-        <nav className="hidden sm:flex items-center gap-8 text-[13px] font-medium tracking-wide">
+        <nav className="hidden sm:flex items-center gap-8 text-[12px] font-medium tracking-wide">
           <GlitchLink text="posts" href="/posts" color={linkColor} hoverColor={linkHover} />
           <GlitchLink text="github" href="https://github.com/iam-saju" external color={linkColor} hoverColor={linkHover} />
         </nav>
@@ -145,12 +145,12 @@ const Navigation = ({ isDarkMode = true, onToggleTheme }: NavigationProps) => {
 
           {/* Mobile minimal menu for links */}
           <div className="sm:hidden flex items-center gap-2 ml-1">
-             <a href="/posts" className="text-[11px] font-medium" style={{ color: linkColor }}>posts</a>
+             <a href="/posts" className="text-[9px] font-medium" style={{ color: linkColor }}>posts</a>
              <a
                href="https://github.com/iam-saju"
                target="_blank"
                rel="noopener noreferrer"
-               className="text-[11px] font-medium"
+               className="text-[9px] font-medium"
                style={{ color: linkColor }}
              >
                github

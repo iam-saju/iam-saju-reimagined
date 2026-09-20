@@ -1,74 +1,40 @@
-import { useState, useEffect } from 'react';
-import HeroDonut from './HeroDonut';
+import ParticleSwarm from './ParticleSwarm';
 
 interface HeroProps {
   isDarkMode?: boolean;
 }
 
 const Hero = ({ isDarkMode = true }: HeroProps) => {
-  const heading = isDarkMode ? '#ede4d3' : '#073642';
   const body = isDarkMode ? '#a89d8c' : '#586e75';
   const muted = isDarkMode ? '#7d7263' : '#93a1a1';
   const bright = isDarkMode ? '#ede4d3' : '#073642';
 
-  const [typedText, setTypedText] = useState('');
-  const [showCursor] = useState(true);
-  const fullText = 'hey';
-  useEffect(() => {
-    let i = 0;
-    const delay = setTimeout(() => {
-      const interval = setInterval(() => {
-        if (i < fullText.length) {
-          setTypedText(fullText.slice(0, i + 1));
-          i++;
-        } else {
-          clearInterval(interval);
-          // Removed setTimeout(() => setShowCursor(false), 2000) to make cursor blink indefinitely
-        }
-      }, 150);
-      return () => clearInterval(interval);
-    }, 300);
-    return () => clearTimeout(delay);
-  }, []);
-
   return (
     <section id="about" className="flex-1 relative flex items-center justify-start font-serif overflow-hidden">
-      <style>{`
-        @keyframes cursor-blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
-      `}</style>
-
       <div className="relative w-full max-w-6xl mx-auto h-full flex items-center">
-        <div className="absolute top-0 bottom-0 left-1/2 right-0 flex items-center justify-center pointer-events-none" style={{ overflow: 'visible', zIndex: 0 }}>
-          <HeroDonut />
+        <div className="hidden lg:flex absolute top-0 bottom-0 left-1/2 right-0 items-center justify-center pointer-events-none" style={{ overflow: 'visible', zIndex: 0 }}>
+          <div className="flex flex-col items-center gap-3">
+            <ParticleSwarm isDarkMode={isDarkMode} />
+            <a
+              href="https://arxiv.org/abs/2508.12183"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[8px] text-center leading-relaxed max-w-[220px] hover:opacity-100 transition-opacity"
+              style={{ color: muted, opacity: isDarkMode ? 0.55 : 0.8, fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif", pointerEvents: 'auto' }}
+            >
+              a generative particle swarm — collective motion inspired by Fabregas, Liao &amp; Outada, "The Mathematical Theory of Behavioural Swarms" (arXiv:2508.12183)
+            </a>
+          </div>
         </div>
 
         <div className="max-w-xl px-6 sm:px-10 lg:px-16 py-4 pt-20 sm:pt-4 pb-16 sm:pb-24 relative z-10">
 
         <div
-          className="space-y-6 text-[15px] sm:text-base leading-relaxed"
+          className="space-y-6 text-[14px] sm:text-base leading-relaxed"
           style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif", color: body }}
         >
-          <h1
-            className="font-serif text-[2.1rem] sm:text-[2.625rem] md:text-[3.15rem] font-normal leading-[1.1]"
-            style={{ color: heading }}
-          >
-            {typedText}
-            {showCursor && (
-              <span className="inline-block ml-1 animate-pulse" style={{
-                color: '#cb4b16',
-                fontWeight: 600,
-                animation: 'cursor-blink 1.0s step-end infinite',
-              }}>
-                |
-              </span>
-            )}
-          </h1>
-
           <div className="space-y-3">
-            <p>
+            <p className="text-[15px] sm:text-[1.05rem]">
               i'm <span style={{ color: bright, fontWeight: 600 }}>saju</span>. :)
             </p>
 

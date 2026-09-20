@@ -12,17 +12,22 @@ const Hero = ({ isDarkMode = true }: HeroProps) => {
   return (
     <section id="about" className="flex-1 relative flex items-center justify-start font-serif overflow-hidden">
       <div className="relative w-full max-w-6xl mx-auto h-full flex items-center">
-        <div className="hidden lg:flex absolute top-0 bottom-0 left-1/2 right-0 items-center justify-center pointer-events-none" style={{ overflow: 'visible', zIndex: 0 }}>
+        <div className="hidden lg:flex absolute top-0 bottom-0 left-[58%] right-0 items-center justify-center pointer-events-none" style={{ overflow: 'visible', zIndex: 0 }}>
           <div className="flex flex-col items-center gap-3">
             <ParticleSwarm isDarkMode={isDarkMode} />
             <a
               href="https://arxiv.org/abs/2508.12183"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[8px] text-center leading-relaxed max-w-[220px] hover:opacity-100 transition-opacity"
-              style={{ color: muted, opacity: isDarkMode ? 0.55 : 0.8, fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif", pointerEvents: 'auto' }}
+              className="text-center max-w-[240px] hover:opacity-100 transition-opacity"
+              style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif", pointerEvents: 'auto' }}
             >
-              a generative particle swarm — collective motion inspired by Fabregas, Liao &amp; Outada, "The Mathematical Theory of Behavioural Swarms" (arXiv:2508.12183)
+              <div className="text-[13px] font-medium" style={{ color: muted, opacity: isDarkMode ? 0.75 : 0.9 }}>
+                a generative particle swarm
+              </div>
+              <div className="text-[10px] leading-relaxed mt-1" style={{ color: muted, opacity: isDarkMode ? 0.5 : 0.7 }}>
+                collective motion, local rules — Fabregas, Liao &amp; Outada (arXiv:2508.12183)
+              </div>
             </a>
           </div>
         </div>

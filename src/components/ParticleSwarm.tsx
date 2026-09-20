@@ -62,6 +62,16 @@ import { useEffect, useRef, useCallback } from 'react';
  *    be orbiting at once. On top of that, a slow compression wave sweeps
  *    across the whole field on its own axis and period, alternately
  *    pulling particles in and letting them relax back out as it passes.
+ *
+ * The arena itself is a wide ellipse, not a circle — the field has real
+ * horizontal room to stretch into elongated streams rather than staying
+ * columnar — and the leash/lattice pull strength both breathe slowly
+ * in and out over a multi-minute cycle, so the whole field genuinely
+ * disperses toward near-empty before drawing back together, instead of
+ * holding a roughly constant amount of visual density at all times.
+ * Colors are a small, unevenly-weighted set (most particles share one
+ * muted base tone, a minority carry a couple of subtle accents) so the
+ * field reads as one organism rather than generative confetti.
  */
 
 interface ParticleSwarmProps {
@@ -69,23 +79,28 @@ interface ParticleSwarmProps {
   isDarkMode?: boolean;
 }
 
-// A handful of high-contrast colors, one assigned per particle (evenly,
-// not randomly) so the field always shows several colors at once rather
-// than the whole thing tinting together. Light mode needs darker, more
-// saturated colors (the dark-mode set reads as near-invisible pastel on
-// the cream background) — using the same Solarized accents as the rest
-// of the site for consistency.
-const DARK_COLOR_PALETTE = ['#ff6b6b', '#ffa94d', '#ffd43b', '#69db7c', '#4dabf7', '#da77f2'];
-const LIGHT_COLOR_PALETTE = ['#dc322f', '#cb4b16', '#b58900', '#859900', '#268bd2', '#6c71c4'];
+// A restrained, muted palette — most particles share one base tone (close
+// to the site's own body-text color, for cohesion) with two subtle accent
+// hues sparingly mixed in, weighted so the field reads as one biological
+// system rather than confetti. Light mode reuses the same weighting with
+// Solarized accents suited to the cream background.
+const DARK_COLOR_PALETTE = ['#a89d8c', '#c9847a', '#8a9a8f'];
+const LIGHT_COLOR_PALETTE = ['#93a1a1', '#b58900', '#6c71c4'];
+const COLOR_WEIGHTS = [0.7, 0.18, 0.12];
 
 const PALETTE = ' .·:+*'; // space + 5 density/speed intensity levels — no direction glyphs
 const PALETTE_LEN = PALETTE.length;
 
-const WIDTH = 110;
-const HEIGHT = 68;
+// Wider than tall in grid units, and more so once rendered: monospace
+// characters are narrower than they are high, so an equal-unit grid reads
+// as portrait on screen. This ratio is tuned to read as landscape once
+// rendered, giving the field room for horizontally elongated formations
+// instead of the vertical/columnar look a near-square grid produces.
+const WIDTH = 150;
+const HEIGHT = 62;
 const N = 220;
 const CENTER_X = WIDTH / 2;
-const CENTER_Y = HEIGHT / 2;
+const CENTER_Y = HEIGHT * 0.44; // slightly above true center, closer to the hero copy
 
 // Cucker-Smale communication weight psi(r) = CS_K / (1 + r)^CS_BETA (eq. 2.2-2.3),
 // applied only within each particle's own bounded Omega_i (see file header).
@@ -96,7 +111,8 @@ const MAX_K_NEIGHBORS = 8; // upper bound used to size scratch arrays
 // Anisotropy: neighbors aligned with a particle's current heading (ahead
 // or behind) weigh up to 1.0x; neighbors directly to the side weigh only
 // ANISO_BASE — this is what produces elongated streams instead of blobs.
-const ANISO_BASE = 0.35;
+// Kept low so the effect reads clearly rather than staying isotropic.
+const ANISO_BASE = 0.18;
 
 // Bounded-confidence homophily threshold for activity consensus.
 const HOMOPHILY_EPSILON = 0.15;
@@ -112,8 +128,17 @@ const LJ_STRENGTH = 0.55;
 const SEPARATION_WEIGHT = 0.5; // not from the paper — practical anti-overlap/lattice term
 
 const MAX_SPEED = 0.6;
-const LEASH_RADIUS = Math.min(WIDTH, HEIGHT) * 0.48;
-const LEASH_WEIGHT = 0.4; // not from the paper — keeps the field on screen
+// Elliptical, not circular — wider than tall, so the field has real room
+// to stretch into horizontal formations instead of staying columnar.
+const LEASH_RADIUS_X = WIDTH * 0.46;
+const LEASH_RADIUS_Y = HEIGHT * 0.5;
+const LEASH_WEIGHT_BASE = 0.32; // not from the paper — keeps the field on screen
+// Slow global "breathing": the leash and lattice pull both fade in and out
+// on a multi-minute cycle, so the whole field genuinely disperses toward
+// near-empty before drawing back together, rather than holding one
+// roughly-constant amount of visual density at all times.
+const BREATHE_FREQ = 0.011;
+const BREATHE_MIN = 0.45, BREATHE_MAX = 1.15;
 
 // Rare per-particle "orbit" bursts around one random nearby neighbor —
 // near-zero radius growth reads as a ring, faster growth as a spiral arm.
@@ -138,7 +163,8 @@ const WAVE_DIR_ROT_SPEED = 0.008;
 // the frame on a multi-minute Lissajous-style path (two incommensurate
 // frequencies so it never repeats on a short cycle) — the "10-30s+ scale"
 // on top of the fast individual noise and medium neighbor-driven structure.
-const DRIFT_RADIUS = Math.min(WIDTH, HEIGHT) * 0.16;
+const DRIFT_RADIUS_X = WIDTH * 0.2;
+const DRIFT_RADIUS_Y = HEIGHT * 0.22;
 const DRIFT_FREQ_X = 0.045;
 const DRIFT_FREQ_Y = 0.033;
 
@@ -153,7 +179,7 @@ const HEADING_DECAY = 0.02;
 const IMPULSE_PROBABILITY = 0.0008; // per particle, per frame (~once every ~40s each)
 const IMPULSE_KICK = 0.9;
 
-const DENSITY_CAP = 2.0;
+const DENSITY_CAP = 1.25; // lower cap so more of the glyph range (. · : + *) actually gets used
 
 interface Particles {
   px: Float32Array;
@@ -182,7 +208,21 @@ interface Particles {
   fy: Float32Array;
 }
 
-function makeParticles(colorCount: number): Particles {
+function makeParticles(colorCount: number, weights?: number[]): Particles {
+  // Cumulative thresholds for weighted (not even) color assignment.
+  const cumWeights: number[] = [];
+  if (weights && weights.length === colorCount) {
+    let acc = 0;
+    for (const w of weights) { acc += w; cumWeights.push(acc); }
+  } else {
+    for (let c = 1; c <= colorCount; c++) cumWeights.push(c / colorCount);
+  }
+  const pickColor = () => {
+    const r = Math.random() * cumWeights[cumWeights.length - 1];
+    for (let c = 0; c < cumWeights.length; c++) if (r <= cumWeights[c]) return c;
+    return cumWeights.length - 1;
+  };
+
   const px = new Float32Array(N);
   const py = new Float32Array(N);
   const vx = new Float32Array(N);
@@ -228,7 +268,7 @@ function makeParticles(colorCount: number): Particles {
     speedFluctFreq[i] = 0.08 + Math.random() * 0.1;
     speedFluctPhase[i] = Math.random() * Math.PI * 2;
     perceptionCount[i] = 3 + Math.floor(Math.random() * 6); // 3..8
-    colorIdx[i] = i % colorCount; // evenly spread so no single color dominates
+    colorIdx[i] = pickColor(); // weighted — most particles share the base tone
     burstAnchorIdx[i] = -1;
   }
   return {
@@ -248,7 +288,7 @@ const ParticleSwarm = ({ accentColor, isDarkMode = true }: ParticleSwarmProps) =
   const startTimeRef = useRef<number | null>(null);
 
   const particlesRef = useRef<Particles | null>(null);
-  if (!particlesRef.current) particlesRef.current = makeParticles(colors.length);
+  if (!particlesRef.current) particlesRef.current = makeParticles(colors.length, accentColor ? undefined : COLOR_WEIGHTS);
 
   // One density/velocity buffer set per color bucket, so each color layer
   // only draws the cells its own particles actually occupy.
@@ -296,8 +336,14 @@ const ParticleSwarm = ({ accentColor, isDarkMode = true }: ParticleSwarmProps) =
     const nbrDistSq = nbrDistSqRef.current!;
 
     // Slow large-scale drift target for the leash (see file header).
-    const targetCenterX = CENTER_X + Math.cos(elapsedSeconds * DRIFT_FREQ_X) * DRIFT_RADIUS;
-    const targetCenterY = CENTER_Y + Math.sin(elapsedSeconds * DRIFT_FREQ_Y) * DRIFT_RADIUS * 0.6;
+    const targetCenterX = CENTER_X + Math.cos(elapsedSeconds * DRIFT_FREQ_X) * DRIFT_RADIUS_X;
+    const targetCenterY = CENTER_Y + Math.sin(elapsedSeconds * DRIFT_FREQ_Y) * DRIFT_RADIUS_Y;
+
+    // Slow global breathing: leash/lattice pull strength fades in and out
+    // over a multi-minute cycle, letting the field genuinely disperse
+    // toward near-empty before drawing back together (see file header).
+    const breathe = BREATHE_MIN + (BREATHE_MAX - BREATHE_MIN) * (0.5 + 0.5 * Math.sin(elapsedSeconds * BREATHE_FREQ));
+    const leashWeight = LEASH_WEIGHT_BASE * breathe;
 
     // Traveling compression wave: axis slowly rotates, wave itself sweeps
     // along that axis over time (see file header).
@@ -373,7 +419,8 @@ const ParticleSwarm = ({ accentColor, isDarkMode = true }: ParticleSwarmProps) =
         const distSq = dx * dx + dy * dy;
         if (distSq < LATTICE_CUTOFF_SQ && distSq > 1e-6) {
           const r = Math.sqrt(distSq);
-          const mag = LJ_STRENGTH * (PREFERRED_SPACING / r - 1);
+          let mag = LJ_STRENGTH * (PREFERRED_SPACING / r - 1);
+          if (mag < 0) mag *= breathe; // only the weak attractive tail breathes; repulsion never fades
           sepX += (dx / r) * mag;
           sepY += (dy / r) * mag;
         }
@@ -411,13 +458,15 @@ const ParticleSwarm = ({ accentColor, isDarkMode = true }: ParticleSwarmProps) =
       const speedFluct = 1 + 0.15 * Math.sin(elapsedSeconds * speedFluctFreq[i] + speedFluctPhase[i]);
       const preferredSpeed = ((1 + ui) / 2) * MAX_SPEED * speedMul[i] * speedFluct;
 
-      // ---- Center leash toward the slowly-drifting anchor (practical addition, not from the paper) ----
+      // ---- Center leash toward the slowly-drifting anchor (practical addition, not from the paper).
+      // Elliptical (wider than tall) so the field has room to stretch horizontally. ----
       const dxC = targetCenterX - pxi;
       const dyC = targetCenterY - pyi;
       const distC = Math.sqrt(dxC * dxC + dyC * dyC) || 1e-6;
-      const pullMag = distC > LEASH_RADIUS
-        ? 1 + (distC - LEASH_RADIUS) / LEASH_RADIUS
-        : (distC / LEASH_RADIUS) * 0.25;
+      const rNorm = Math.sqrt((dxC / LEASH_RADIUS_X) ** 2 + (dyC / LEASH_RADIUS_Y) ** 2);
+      const pullMag = rNorm > 1
+        ? 1 + (rNorm - 1)
+        : rNorm * 0.25;
       const ux = dxC / distC, uy = dyC / distC;
 
       // ---- Orbit bursts: rarely, independently, orbit one random nearby
@@ -462,8 +511,8 @@ const ParticleSwarm = ({ accentColor, isDarkMode = true }: ParticleSwarmProps) =
       const waveY = WAVE_STRENGTH * wave * uy;
 
       // ---- dv_i/dt = gamma_i (s_i*omega_i - v_i) (Algorithm 1 line 12), plus lattice + leash + orbit + wave ----
-      fx[i] = gamma[i] * (preferredSpeed * omegaX - vx[i]) + SEPARATION_WEIGHT * sepX + LEASH_WEIGHT * pullMag * ux + ORBIT_WEIGHT * orbitX + waveX;
-      fy[i] = gamma[i] * (preferredSpeed * omegaY - vy[i]) + SEPARATION_WEIGHT * sepY + LEASH_WEIGHT * pullMag * uy + ORBIT_WEIGHT * orbitY + waveY;
+      fx[i] = gamma[i] * (preferredSpeed * omegaX - vx[i]) + SEPARATION_WEIGHT * sepX + leashWeight * pullMag * ux + ORBIT_WEIGHT * orbitX + waveX;
+      fy[i] = gamma[i] * (preferredSpeed * omegaY - vy[i]) + SEPARATION_WEIGHT * sepY + leashWeight * pullMag * uy + ORBIT_WEIGHT * orbitY + waveY;
     }
 
     // ---- Integration pass: turn-rate-limited inertia, not instant redirection ----
@@ -553,7 +602,7 @@ const ParticleSwarm = ({ accentColor, isDarkMode = true }: ParticleSwarmProps) =
           const avgVel = velSum[idx] / d;
           const densityNorm = Math.min(1, d / DENSITY_CAP);
           const velNorm = Math.min(1, avgVel / MAX_SPEED);
-          const intensity = Math.min(1, densityNorm * 0.6 + velNorm * 0.6);
+          const intensity = Math.min(1, densityNorm * 0.8 + velNorm * 0.45);
           const ci = Math.min(PALETTE_LEN - 1, 1 + Math.round(intensity * (PALETTE_LEN - 2)));
           line += PALETTE[ci];
         }
@@ -572,7 +621,7 @@ const ParticleSwarm = ({ accentColor, isDarkMode = true }: ParticleSwarmProps) =
 
   const baseStyle = {
     fontFamily: 'Consolas, "Courier New", monospace',
-    fontSize: 'clamp(4.5px, 0.9vw, 6px)',
+    fontSize: 'clamp(4.5px, 0.95vw, 6.5px)',
     lineHeight: 1.0,
     letterSpacing: 0,
     userSelect: 'none' as const,

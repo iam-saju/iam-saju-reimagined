@@ -8,7 +8,6 @@ import Index from "./pages/Index";
 import Notes from "./pages/Notes";
 import PostViewer from './pages/PostViewer';
 import AdminArchive from "./pages/AdminArchive";
-import VideoBgTest from "./pages/VideoBgTest";
 import NotFound from "./pages/NotFound";
 import DonutTerminal from "./components/DonutTerminal";
 import { useDonutTerminal } from "./hooks/useDonutTerminal";
@@ -38,7 +37,6 @@ const App = () => {
             <Route path="/posts" element={<Notes />} />
             <Route path="/posts/:slug" element={<PostViewer />} />
             <Route path="/admin/archive-upload" element={<AdminArchive />} />
-            <Route path="/bg-test" element={<VideoBgTest />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
